@@ -1,0 +1,6 @@
+{
+  "name": "NEXORA",
+  "description": "Complete gaming top-up e-commerce platform for Bangladesh. Instant Free Fire, PUBG Mobile, Mobile Legends, and Roblox top-ups with bKash and Nagad.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
