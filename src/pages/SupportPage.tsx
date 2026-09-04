@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { 
   Headphones, 
   Send, 
-  Phone, 
   Mail, 
   Clock, 
   MapPin, 
@@ -29,7 +28,7 @@ export const SupportPage: React.FC = () => {
     setError('');
 
     if (!formName.trim() || !formPhone.trim() || !formMessage.trim()) {
-      setError('Please fill out Name, Phone Number, and your Message.');
+      setError('Please fill out Name, Phone / Telegram Handle, and your Message.');
       return;
     }
 
@@ -50,7 +49,7 @@ export const SupportPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-zinc-900 border border-purple-500/30 text-xs font-bold uppercase tracking-widest text-cyan-400">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-zinc-900 border border-cyan-500/30 text-xs font-bold uppercase tracking-widest text-cyan-400">
           <Headphones className="w-3.5 h-3.5" />
           <span>24/7 Dedicated Assistance</span>
         </div>
@@ -58,92 +57,101 @@ export const SupportPage: React.FC = () => {
           NEXORA Support Center
         </h1>
         <p className="text-xs sm:text-sm text-zinc-400">
-          Need help with Player UID input, bKash/Nagad manual payment verification, or an existing order? Our Bangladesh support team is active 24/7.
+          Need help with Player UID input, bKash/Nagad payment verification, or an existing order? Our Telegram support is active 24/7.
         </p>
       </div>
 
       {/* Direct Contact Channels Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* WhatsApp Card */}
-        <div className="bg-zinc-900/80 border border-zinc-800 hover:border-emerald-500/50 rounded-3xl p-6 flex flex-col justify-between transition-all backdrop-blur-sm group">
-          <div>
-            <div className="w-12 h-12 rounded-2xl bg-emerald-950/70 border border-emerald-500/40 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition-transform">
-              <Phone className="w-6 h-6" />
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
-              Fastest Response
-            </span>
-            <h3 className="text-lg font-bold text-white mt-1">WhatsApp Live Chat</h3>
-            <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
-              Instant one-on-one chat with our support team. Average reply time is under 3 minutes.
-            </p>
-            <div className="mt-4 p-2.5 rounded-xl bg-zinc-950 font-mono text-xs text-emerald-400 border border-zinc-800">
-              {SITE_CONFIG.support.whatsappNumber}
-            </div>
+        {/* Telegram Card - Primary Support Channel */}
+        <div className="bg-zinc-900/80 border border-cyan-500/40 hover:border-cyan-400 rounded-3xl p-6 flex flex-col justify-between transition-all backdrop-blur-sm group relative overflow-hidden shadow-xl shadow-cyan-950/20">
+          <div className="absolute top-0 right-0 bg-cyan-500 text-black text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-bl-xl">
+            Primary Support
           </div>
-
-          <div className="mt-6 pt-4 border-t border-zinc-800">
-            <a
-              href={SITE_CONFIG.support.whatsappUrl}
-              target="_blank"
-              rel="noreferrer"
-              id="btn-support-whatsapp"
-              className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
-            >
-              <span>Message on WhatsApp</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
-        </div>
-
-        {/* Telegram Card */}
-        <div className="bg-zinc-900/80 border border-zinc-800 hover:border-cyan-500/50 rounded-3xl p-6 flex flex-col justify-between transition-all backdrop-blur-sm group">
           <div>
             <div className="w-12 h-12 rounded-2xl bg-cyan-950/70 border border-cyan-500/40 flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 transition-transform">
               <Send className="w-6 h-6" />
             </div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-400">
-              Community & Bot
+              Fastest Response • 24/7 Live
             </span>
             <h3 className="text-lg font-bold text-white mt-1">Telegram Support</h3>
             <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
-              Reach our support agents or join our announcement channel for special top-up discount coupons.
+              Instant one-on-one chat with our support team. Connect directly for instant manual payment verification and order status updates.
             </p>
-            <div className="mt-4 p-2.5 rounded-xl bg-zinc-950 font-mono text-xs text-cyan-400 border border-zinc-800">
-              {SITE_CONFIG.support.telegramHandle}
+            <div className="mt-4 p-2.5 rounded-xl bg-zinc-950 font-mono text-xs text-cyan-400 border border-cyan-500/30 flex items-center justify-between">
+              <span>@callmeriyadh</span>
+              <span className="text-[10px] text-zinc-500 font-sans">Avg. &lt; 3 mins</span>
             </div>
           </div>
 
           <div className="mt-6 pt-4 border-t border-zinc-800">
             <a
-              href={SITE_CONFIG.support.telegramUrl}
+              href="https://t.me/callmeriyadh"
               target="_blank"
               rel="noreferrer"
               id="btn-support-telegram"
-              className="w-full py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-cyan-600/20 transition-all active:scale-95"
+              className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 transition-all active:scale-95"
             >
-              <span>Open Telegram Chat</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <Send className="w-3.5 h-3.5 fill-current" />
+              <span>Chat on Telegram</span>
+            </a>
+          </div>
+        </div>
+
+        {/* Verification & Manual Payment Help Desk */}
+        <div className="bg-zinc-900/80 border border-zinc-800 hover:border-purple-500/50 rounded-3xl p-6 flex flex-col justify-between transition-all backdrop-blur-sm group">
+          <div>
+            <div className="w-12 h-12 rounded-2xl bg-purple-950/70 border border-purple-500/40 flex items-center justify-center text-purple-400 mb-4 group-hover:scale-110 transition-transform">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-purple-400">
+              Order Help Desk
+            </span>
+            <h3 className="text-lg font-bold text-white mt-1">Order Verification</h3>
+            <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
+              Sent money via bKash or Nagad? Send your Transaction ID and Order ID directly to our Telegram admin for prioritized dispatch.
+            </p>
+            <div className="mt-4 p-2.5 rounded-xl bg-zinc-950 font-mono text-xs text-purple-300 border border-zinc-800">
+              bKash / Nagad: 01638749806
+            </div>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-zinc-800">
+            <a
+              href="https://t.me/callmeriyadh"
+              target="_blank"
+              rel="noreferrer"
+              id="btn-support-verify-telegram"
+              className="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95"
+            >
+              <Send className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Chat on Telegram</span>
             </a>
           </div>
         </div>
 
         {/* Email & Hours Card */}
-        <div className="bg-zinc-900/80 border border-zinc-800 hover:border-purple-500/50 rounded-3xl p-6 flex flex-col justify-between transition-all backdrop-blur-sm group">
+        <div className="bg-zinc-900/80 border border-zinc-800 hover:border-zinc-700 rounded-3xl p-6 flex flex-col justify-between transition-all backdrop-blur-sm group">
           <div>
-            <div className="w-12 h-12 rounded-2xl bg-purple-950/70 border border-purple-500/40 flex items-center justify-center text-purple-400 mb-4 group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-300 mb-4 group-hover:scale-110 transition-transform">
               <Mail className="w-6 h-6" />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-purple-400">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
               Official Inquiries
             </span>
             <h3 className="text-lg font-bold text-white mt-1">Email & Operation</h3>
             <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
-              For partnership inquiries, order audits, or formal support tickets.
+              For partnership inquiries, order audits, or formal corporate communication.
             </p>
-            <div className="mt-4 p-2.5 rounded-xl bg-zinc-950 font-mono text-xs text-purple-300 border border-zinc-800">
-              {SITE_CONFIG.support.email}
-            </div>
+            <a
+              href={`mailto:${SITE_CONFIG.support.email}`}
+              id="support-email-link"
+              className="mt-4 p-2.5 rounded-xl bg-zinc-950 font-mono text-xs text-cyan-400 hover:text-cyan-300 border border-zinc-800 hover:border-cyan-500/40 flex items-center justify-between transition-colors group/link"
+            >
+              <span>{SITE_CONFIG.support.email}</span>
+              <ExternalLink className="w-3.5 h-3.5 text-zinc-500 group-hover/link:text-cyan-400 transition-colors" />
+            </a>
           </div>
 
           <div className="mt-6 pt-4 border-t border-zinc-800 space-y-2 text-xs text-zinc-400">
@@ -169,7 +177,7 @@ export const SupportPage: React.FC = () => {
             Submit a Support Ticket
           </h2>
           <p className="text-xs text-zinc-400 mt-1.5">
-            Fill out the form below and an agent will reply directly to your WhatsApp or phone number.
+            Fill out the form below and an agent will reply directly to your Telegram handle or phone number.
           </p>
         </div>
 
@@ -180,7 +188,7 @@ export const SupportPage: React.FC = () => {
             </div>
             <h4 className="text-base font-bold text-white">Ticket Submitted Successfully!</h4>
             <p className="text-xs text-zinc-300 max-w-md mx-auto">
-              Thank you for reaching out. A NEXORA support representative has received your ticket and will message you shortly.
+              Thank you for reaching out. A NEXORA support representative has received your ticket and will contact you on Telegram or phone shortly.
             </p>
             <button
               type="button"
@@ -216,14 +224,14 @@ export const SupportPage: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2">
-                  Phone / WhatsApp Number <span className="text-red-400">*</span>
+                  Phone / Telegram Username <span className="text-red-400">*</span>
                 </label>
                 <input
-                  type="tel"
+                  type="text"
                   id="ticket-phone"
                   value={formPhone}
                   onChange={(e) => setFormPhone(e.target.value)}
-                  placeholder="01XXXXXXXXX"
+                  placeholder="01XXXXXXXXX or @username"
                   className="w-full bg-zinc-950 border border-zinc-700/80 rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-cyan-500 font-mono"
                 />
               </div>

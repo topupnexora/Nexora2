@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   Zap, 
@@ -35,6 +35,16 @@ export const GameDetailPage: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [errors, setErrors] = useState<{ playerId?: string; serverId?: string; package?: string }>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (game) {
+      setSelectedPackage(game.packages.find((p) => p.isPopular) || game.packages[0] || null);
+      setPlayerId('');
+      setServerId('');
+      setQuantity(1);
+      setErrors({});
+    }
+  }, [gameId]);
 
   if (!game) {
     return (
@@ -474,7 +484,18 @@ export const GameDetailPage: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-cyan-400" />
-                <span>24/7 dedicated WhatsApp support</span>
+                <span>
+                  24/7 dedicated Telegram support (
+                  <a
+                    href="https://t.me/callmeriyadh"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-cyan-400 hover:underline font-bold"
+                  >
+                    @callmeriyadh
+                  </a>
+                  )
+                </span>
               </div>
             </div>
           </div>

@@ -12,9 +12,10 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
   const lowestPrice = Math.min(...game.packages.map((p) => p.price));
 
   return (
-    <div 
+    <Link 
+      to={`/game/${game.id}`}
       id={`game-card-${game.id}`}
-      className="group relative bg-[#0d0d0f] hover:bg-[#121216] border border-white/5 hover:border-cyan-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 flex flex-col justify-between"
+      className="group relative bg-[#0d0d0f] hover:bg-[#121216] border border-white/5 hover:border-cyan-500/40 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400"
     >
       {/* Top badges */}
       <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
@@ -75,16 +76,15 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
             </span>
           </div>
 
-          <Link
-            to={`/games/${game.id}`}
+          <div
             id={`btn-topup-${game.id}`}
-            className="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-tight text-black bg-white hover:bg-cyan-400 transition-colors shadow-sm active:scale-95"
+            className="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-tight text-black bg-white group-hover:bg-cyan-400 transition-colors shadow-sm"
           >
             <span>Top Up</span>
             <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };

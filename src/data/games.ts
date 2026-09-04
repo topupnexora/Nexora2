@@ -8,8 +8,8 @@ export const GAMES_DATA: Game[] = [
     category: 'Battle Royale',
     description: 'Instant top-up for Garena Free Fire Diamonds in Bangladesh. 100% safe, fast UID delivery straight into your account within 1-5 minutes.',
     detailedInstructions: 'Enter your 8-10 digit Free Fire Player UID found in your in-game profile tab. No password required.',
-    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80',
-    bannerImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80',
+    image: '/images/games/free-fire.jpg',
+    bannerImage: '/images/games/free-fire.jpg',
     popular: true,
     featured: true,
     deliveryTime: 'Instant (1-3 Mins)',
@@ -40,8 +40,8 @@ export const GAMES_DATA: Game[] = [
     category: 'Battle Royale',
     description: 'Buy PUBG Mobile Unknown Cash (UC) instantly in Bangladesh. Safe and reliable global top-up using Player ID only.',
     detailedInstructions: 'Enter your PUBG Mobile Numeric Character ID. You can find this by clicking on your avatar at the top left of the main lobby.',
-    image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=800&q=80',
-    bannerImage: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1600&q=80',
+    image: '/images/games/pubg-mobile.jpg',
+    bannerImage: '/images/games/pubg-mobile.jpg',
     popular: true,
     featured: true,
     deliveryTime: 'Instant (2-5 Mins)',
@@ -70,8 +70,8 @@ export const GAMES_DATA: Game[] = [
     category: 'MOBA',
     description: 'Instant Mobile Legends Diamonds top-up. Cheap BDT prices, instant delivery to your MLBB account with User ID and Zone ID.',
     detailedInstructions: 'Enter your User ID and Zone ID (in brackets). For example: If your ID is 12345678 (1234), User ID is 12345678 and Zone ID is 1234.',
-    image: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=800&q=80',
-    bannerImage: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=1600&q=80',
+    image: '/images/games/mobile-legends.jpg',
+    bannerImage: '/images/games/mobile-legends.jpg',
     popular: true,
     featured: true,
     deliveryTime: 'Instant (1-3 Mins)',
@@ -108,8 +108,8 @@ export const GAMES_DATA: Game[] = [
     category: 'FPS',
     description: 'Get Call of Duty Mobile CP (COD Points) fast and cheap in Bangladesh. Garena & Global supported via Player UID.',
     detailedInstructions: 'Find your CODM UID by clicking your player profile in the top-left corner, navigating to the player card tab, and copying the UID.',
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80',
-    bannerImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1600&q=80',
+    image: '/images/games/cod-mobile.jpg',
+    bannerImage: '/images/games/cod-mobile.jpg',
     popular: true,
     featured: false,
     deliveryTime: 'Instant (2-5 Mins)',
@@ -137,8 +137,8 @@ export const GAMES_DATA: Game[] = [
     category: 'Sports',
     description: 'Top up EA SPORTS FC Mobile Points with instant delivery in BD. Level up your Ultimate Team with officially verified FC Points.',
     detailedInstructions: 'Open FC Mobile Settings -> Link Accounts / Profile to copy your unique UID or Player ID.',
-    image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
-    bannerImage: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1600&q=80',
+    image: '/images/games/ea-fc-mobile.jpg',
+    bannerImage: '/images/games/ea-fc-mobile.jpg',
     popular: false,
     featured: false,
     deliveryTime: 'Instant (3-7 Mins)',
@@ -166,8 +166,8 @@ export const GAMES_DATA: Game[] = [
     category: 'Sandbox',
     description: 'Instant Roblox Robux top-up for Bangladeshi gamers. Fast delivery to your Roblox username or ID. Safe and guaranteed.',
     detailedInstructions: 'Enter your exact Roblox Username (or numeric Roblox User ID). Please make sure spelling and capitalization match your account.',
-    image: 'https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=800&q=80',
-    bannerImage: 'https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=1600&q=80',
+    image: '/images/games/roblox.jpg',
+    bannerImage: '/images/games/roblox.jpg',
     popular: true,
     featured: true,
     deliveryTime: 'Instant (1-5 Mins)',
@@ -266,16 +266,16 @@ export const FAQS_DATA = [
   {
     id: 'failed-orders',
     question: 'What happens if I enter an incorrect Player ID?',
-    answer: 'If you entered an invalid or non-existent Player ID, our team will flag it as Pending/On-Hold and contact you via Phone/WhatsApp. If diamonds were delivered to an incorrect valid ID due to user typing mistake, it cannot be reversed, so please double check your ID before submitting.'
+    answer: 'If you entered an invalid or non-existent Player ID, our team will flag it as Pending/On-Hold and contact you via Phone or Telegram (@callmeriyadh). If diamonds were delivered to an incorrect valid ID due to user typing mistake, it cannot be reversed, so please double check your ID before submitting.'
   },
   {
     id: 'refund-policy',
     question: 'What is the refund policy?',
-    answer: 'If we fail to deliver your game items due to stock or technical issues, you are entitled to a full 100% refund back to your bKash or Nagad wallet within 24 hours. Contact our 24/7 support team.'
+    answer: 'If we fail to deliver your game items due to stock or technical issues, you are entitled to a full 100% refund back to your bKash or Nagad wallet within 24 hours. Contact our 24/7 support team on Telegram (@callmeriyadh).'
   },
   {
     id: 'customer-support',
     question: 'How do I reach NEXORA customer support?',
-    answer: 'We have 24/7 live assistance via WhatsApp and Telegram. You can click the floating support buttons or visit our Contact page anytime!'
+    answer: 'We provide 24/7 live customer support on Telegram (@callmeriyadh: https://t.me/callmeriyadh) and official email at riadhsn.39@gmail.com. You can click the "Chat on Telegram" button anywhere on the site or visit our Support page anytime!'
   }
 ];

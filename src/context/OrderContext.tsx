@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Order, OrderStatus, CartItem } from '../types';
+import { Order, OrderStatus, CartItem, PaymentMethod } from '../types';
 import { generateOrderId } from '../utils/format';
 
 interface CreateOrderInput {
@@ -8,7 +8,7 @@ interface CreateOrderInput {
   email?: string;
   items: CartItem[];
   totalAmount: number;
-  paymentMethod: 'bKash' | 'Nagad';
+  paymentMethod: PaymentMethod;
   paymentNumberSentTo: string;
   senderPhone: string;
   transactionId: string;
@@ -45,12 +45,26 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         customerName: 'Shakib Gamer',
         phone: '01712345678',
         email: 'gamer@nexora.gg',
+        game: 'Free Fire',
+        package: '610 Diamonds',
+        playerId: '8271049281',
+        quantity: 1,
+        totalPrice: 475,
+        totalAmount: 475,
+        paymentMethod: 'bKash',
+        paymentNumberSentTo: '01638749806',
+        senderPhone: '01712345678',
+        transactionId: '9K4M8X2A10',
+        orderDateTime: new Date(Date.now() - 86400000 * 2).toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }),
+        status: 'Completed',
+        createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+        updatedAt: new Date(Date.now() - 86400000 * 2 + 180000).toISOString(),
         items: [
           {
             id: 'demo-1',
             gameId: 'free-fire',
             gameName: 'Free Fire',
-            gameImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80',
+            gameImage: '/images/games/free-fire.jpg',
             packageId: 'ff-610',
             packageName: '610 Diamonds',
             unit: 'Diamonds',
@@ -59,14 +73,6 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             playerId: '8271049281'
           }
         ],
-        totalAmount: 475,
-        paymentMethod: 'bKash',
-        paymentNumberSentTo: '01700-000000',
-        senderPhone: '01712345678',
-        transactionId: '9K4M8X2A10',
-        status: 'Completed',
-        createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-        updatedAt: new Date(Date.now() - 86400000 * 2 + 180000).toISOString(),
         statusHistory: [
           { status: 'Pending', timestamp: new Date(Date.now() - 86400000 * 2).toISOString(), note: 'Order placed via bKash' },
           { status: 'Processing', timestamp: new Date(Date.now() - 86400000 * 2 + 60000).toISOString(), note: 'Payment verified by admin' },
@@ -78,12 +84,26 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         customerName: 'Tanvir Ahmed',
         phone: '01898765432',
         email: 'tanvir@gmail.com',
+        game: 'PUBG Mobile',
+        package: '660 UC',
+        playerId: '5129384710',
+        quantity: 1,
+        totalPrice: 950,
+        totalAmount: 950,
+        paymentMethod: 'Nagad',
+        paymentNumberSentTo: '01638749806',
+        senderPhone: '01898765432',
+        transactionId: 'NG77194018',
+        orderDateTime: new Date(Date.now() - 1000 * 60 * 12).toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }),
+        status: 'Processing',
+        createdAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
+        updatedAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
         items: [
           {
             id: 'demo-2',
             gameId: 'pubg-mobile',
             gameName: 'PUBG Mobile',
-            gameImage: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=800&q=80',
+            gameImage: '/images/games/pubg-mobile.jpg',
             packageId: 'pubg-660',
             packageName: '660 UC',
             unit: 'UC',
@@ -92,14 +112,6 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             playerId: '5129384710'
           }
         ],
-        totalAmount: 950,
-        paymentMethod: 'Nagad',
-        paymentNumberSentTo: '01800-000000',
-        senderPhone: '01898765432',
-        transactionId: 'NG77194018',
-        status: 'Processing',
-        createdAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
-        updatedAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
         statusHistory: [
           { status: 'Pending', timestamp: new Date(Date.now() - 1000 * 60 * 12).toISOString(), note: 'Awaiting manual payment matching' },
           { status: 'Processing', timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), note: 'TrxID verified, pushing UC to PUBG Character ID' }
@@ -122,21 +134,36 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const createOrder = async (input: CreateOrderInput) => {
     const orderId = generateOrderId();
     const now = new Date().toISOString();
+    const orderDateTime = new Date(now).toLocaleString('en-US', { timeZone: 'Asia/Dhaka' });
+
+    const primaryItem = input.items[0];
+    const gameName = input.items.map((i) => i.gameName).join(', ') || primaryItem?.gameName || 'Game Top-Up';
+    const packageName = input.items.map((i) => `${i.quantity}x ${i.packageName}`).join(', ') || primaryItem?.packageName || 'Package';
+    const totalQty = input.items.reduce((s, i) => s + i.quantity, 0);
+    const playerId = input.items.map((i) => `${i.playerId}${i.serverId ? ` (${i.serverId})` : ''}`).join(', ') || primaryItem?.playerId || '';
+    const serverId = primaryItem?.serverId || undefined;
 
     const newOrder: Order = {
       orderId,
       customerName: input.customerName.trim(),
       phone: input.phone.trim(),
       email: input.email ? input.email.trim() : undefined,
-      items: input.items,
+      game: gameName,
+      package: packageName,
+      playerId,
+      serverId,
+      quantity: totalQty,
+      totalPrice: input.totalAmount,
       totalAmount: input.totalAmount,
       paymentMethod: input.paymentMethod,
       paymentNumberSentTo: input.paymentNumberSentTo,
       senderPhone: input.senderPhone.trim(),
       transactionId: input.transactionId.trim().toUpperCase(),
+      orderDateTime,
       status: 'Pending',
       createdAt: now,
       updatedAt: now,
+      items: input.items,
       statusHistory: [
         {
           status: 'Pending',
@@ -146,33 +173,27 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       ]
     };
 
-    // Save locally immediately
+    // Save locally immediately so order history & tracking work reliably
     setOrders((prev) => [newOrder, ...prev]);
     setRecentCreatedOrder(newOrder);
 
     // Call serverless /api/telegram-order endpoint
     try {
-      // Build summary for single or multiple items
-      const primaryItem = input.items[0];
-      const gameSummary = input.items.map((i) => i.gameName).join(', ');
-      const packageSummary = input.items.map((i) => `${i.quantity}x ${i.packageName}`).join(', ');
-      const playerIds = input.items.map((i) => `${i.gameName}: ${i.playerId}${i.serverId ? ` (${i.serverId})` : ''}`).join(' | ');
-
       const telegramPayload = {
         orderId: newOrder.orderId,
         customerName: newOrder.customerName,
         phone: newOrder.phone,
         email: newOrder.email || 'Not provided',
-        game: gameSummary,
-        package: packageSummary,
-        playerId: playerIds,
-        serverId: primaryItem?.serverId || 'N/A',
-        quantity: input.items.reduce((s, i) => s + i.quantity, 0),
-        amount: `BDT ${newOrder.totalAmount}`,
+        game: newOrder.game,
+        package: newOrder.package,
+        playerId: newOrder.playerId,
+        serverId: newOrder.serverId || 'N/A',
+        quantity: newOrder.quantity,
+        amount: newOrder.totalAmount,
         paymentMethod: newOrder.paymentMethod,
         transactionId: newOrder.transactionId,
         status: newOrder.status,
-        dateTime: new Date(now).toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })
+        dateTime: newOrder.orderDateTime
       };
 
       fetch('/api/telegram-order', {

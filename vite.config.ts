@@ -42,22 +42,29 @@ function telegramDevApiPlugin(): Plugin {
               return;
             }
 
-            const telegramMessage = `🛒 *NEW NEXORA ORDER*
+            function escapeHtml(str: any): string {
+              if (str === undefined || str === null || str === '') return 'N/A';
+              return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            }
 
-*Order ID:* \`${body.orderId || 'N/A'}\`
-*Customer Name:* ${body.customerName || 'N/A'}
-*Phone:* \`${body.phone || 'N/A'}\`
-*Email:* ${body.email || 'N/A'}
-*Game:* ${body.game || 'N/A'}
-*Package:* ${body.package || 'N/A'}
-*Player ID:* \`${body.playerId || 'N/A'}\`
-*Server ID:* \`${body.serverId || 'N/A'}\`
-*Quantity:* ${body.quantity || 1}
-*Amount:* ${body.amount || 'N/A'}
-*Payment Method:* ${body.paymentMethod || 'N/A'}
-*Transaction ID:* \`${body.transactionId || 'N/A'}\`
-*Status:* 🟡 ${body.status || 'Pending'}
-*Date/Time:* ${body.dateTime || new Date().toISOString()}`;
+            const telegramMessage = `🛒 <b>NEW NEXORA ORDER</b>
+
+<b>Order ID:</b> <code>${escapeHtml(body.orderId)}</code>
+<b>Game:</b> ${escapeHtml(body.game)}
+<b>Package:</b> ${escapeHtml(body.package)}
+<b>Quantity:</b> ${body.quantity || 1}
+<b>Total Price:</b> ৳${escapeHtml(body.amount)}
+<b>Player ID / UID:</b> <code>${escapeHtml(body.playerId)}</code>
+<b>Server / Zone ID:</b> ${escapeHtml(body.serverId || 'N/A')}
+<b>Payment Method:</b> ${escapeHtml(body.paymentMethod)}
+<b>Transaction ID / Reference:</b> <code>${escapeHtml(body.transactionId)}</code>
+<b>Customer Name:</b> ${escapeHtml(body.customerName || 'N/A')}
+<b>Customer Phone:</b> <code>${escapeHtml(body.phone || 'N/A')}</code>
+<b>Order Date &amp; Time:</b> ${escapeHtml(body.dateTime || new Date().toLocaleString())}
+<b>Status:</b> 🟡 ${escapeHtml(body.status || 'Pending')} (Awaiting Verification)`;
 
             const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
               method: 'POST',
@@ -65,7 +72,7 @@ function telegramDevApiPlugin(): Plugin {
               body: JSON.stringify({
                 chat_id: chatId,
                 text: telegramMessage,
-                parse_mode: 'Markdown'
+                parse_mode: 'HTML'
               })
             });
 

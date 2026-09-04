@@ -50,20 +50,30 @@ export interface CartItem {
 
 export type OrderStatus = 'Pending' | 'Processing' | 'Completed' | 'Cancelled';
 
+export type PaymentMethod = 'bKash' | 'Nagad' | 'Binance Pay' | 'Bank Transfer';
+
 export interface Order {
   orderId: string;
   customerName: string;
   phone: string;
   email?: string;
-  items: CartItem[];
+  // Specific required top-level fields for single or multi-item purchases
+  game: string;
+  package: string;
+  playerId: string;
+  serverId?: string;
+  quantity: number;
+  totalPrice: number;
   totalAmount: number;
-  paymentMethod: 'bKash' | 'Nagad';
+  paymentMethod: PaymentMethod;
   paymentNumberSentTo: string;
   senderPhone: string;
   transactionId: string;
+  orderDateTime: string;
   status: OrderStatus;
   createdAt: string;
   updatedAt: string;
+  items: CartItem[];
   statusHistory?: {
     status: OrderStatus;
     timestamp: string;

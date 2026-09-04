@@ -53,6 +53,7 @@ export default function App() {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/games" element={<GamesPage />} />
                   <Route path="/game/:gameId" element={<GameDetailPage />} />
+                  <Route path="/games/:gameId" element={<GameDetailPage />} />
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
                   <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />

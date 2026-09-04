@@ -79,8 +79,16 @@ export const RefundPolicyPage: React.FC = () => {
         <section className="space-y-2 pt-4 border-t border-zinc-800">
           <h2 className="text-base font-bold text-white">How to Request a Refund</h2>
           <p className="text-xs text-zinc-400">
-            If your order meets eligible criteria, message our 24/7 team on WhatsApp at{' '}
-            <strong className="text-white">{SITE_CONFIG.support.whatsappNumber}</strong> or submit a ticket on our{' '}
+            If your order meets eligible criteria, message our 24/7 team on Telegram at{' '}
+            <a
+              href="https://t.me/callmeriyadh"
+              target="_blank"
+              rel="noreferrer"
+              className="text-cyan-400 underline font-bold"
+            >
+              @callmeriyadh
+            </a>{' '}
+            or submit a ticket on our{' '}
             <Link to="/support" className="text-cyan-400 underline font-semibold">
               Support Page
             </Link>{' '}

@@ -7,7 +7,6 @@ import {
   Clock, 
   Headphones, 
   ExternalLink,
-  Phone,
   Mail,
   MapPin
 } from 'lucide-react';
@@ -38,12 +37,12 @@ export const Footer: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#0d0d0f] border border-white/5">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
-              <Headphones className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0">
+              <Send className="w-5 h-5" />
             </div>
             <div>
               <p className="text-sm font-bold text-gray-100">24/7 Live Support</p>
-              <p className="text-xs text-gray-500">WhatsApp & Telegram</p>
+              <p className="text-xs text-gray-500">Telegram @callmeriyadh</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#0d0d0f] border border-white/5">
@@ -172,36 +171,49 @@ export const Footer: React.FC = () => {
           {/* Social & Contact */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-gray-200">
-              Connect & Chat
+              Support & Contact
             </h3>
-            <div className="space-y-2 text-sm text-gray-400">
-              <a 
-                href={SITE_CONFIG.support.whatsappUrl} 
-                target="_blank" 
-                rel="noreferrer"
-                className="flex items-center gap-2 hover:text-emerald-400 transition-colors"
-              >
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                  <Phone className="w-3.5 h-3.5" />
-                </div>
-                <span>WhatsApp Live Chat</span>
-              </a>
+            <div className="space-y-3 text-sm text-gray-400">
+              {/* Telegram Support Block as requested */}
+              <div className="p-3 rounded-xl bg-[#0d0d0f] border border-cyan-500/20 hover:border-cyan-500/40 transition-all">
+                <a
+                  href="https://t.me/callmeriyadh"
+                  target="_blank"
+                  rel="noreferrer"
+                  id="footer-telegram-contact-link"
+                  className="block group"
+                >
+                  <div className="flex items-center gap-2 text-white font-bold text-sm group-hover:text-cyan-400 transition-colors">
+                    <Send className="w-4 h-4 text-cyan-400" />
+                    <span>Telegram Support</span>
+                  </div>
+                  <div className="text-xs font-mono text-cyan-400 font-semibold mt-0.5 group-hover:underline">
+                    @callmeriyadh
+                  </div>
+                </a>
 
-              <a 
-                href={SITE_CONFIG.support.telegramUrl} 
-                target="_blank" 
-                rel="noreferrer"
-                className="flex items-center gap-2 hover:text-cyan-400 transition-colors"
-              >
-                <div className="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0">
+                {/* Primary Action Button: Chat on Telegram */}
+                <a
+                  href="https://t.me/callmeriyadh"
+                  target="_blank"
+                  rel="noreferrer"
+                  id="btn-footer-chat-telegram"
+                  className="mt-2.5 w-full py-2 px-3 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 hover:border-cyan-500/50 text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95"
+                >
                   <Send className="w-3.5 h-3.5" />
-                </div>
-                <span>Telegram Support Channel</span>
-              </a>
+                  <span>Chat on Telegram</span>
+                </a>
+              </div>
 
               <div className="flex items-center gap-2 pt-1 text-xs text-gray-500">
                 <Mail className="w-4 h-4 text-gray-400 shrink-0" />
-                <span>{SITE_CONFIG.support.email}</span>
+                <a
+                  href={`mailto:${SITE_CONFIG.support.email}`}
+                  id="footer-email-link"
+                  className="hover:text-cyan-400 transition-colors"
+                >
+                  {SITE_CONFIG.support.email}
+                </a>
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
@@ -230,22 +242,13 @@ export const Footer: React.FC = () => {
                 IG
               </a>
               <a
-                href={SITE_CONFIG.social.telegram}
+                href="https://t.me/callmeriyadh"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="NEXORA Telegram"
-                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-cyan-500/20 hover:text-cyan-400 border border-white/10 flex items-center justify-center text-gray-300 transition-all text-xs font-bold"
+                className="w-8 h-8 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center transition-all text-xs font-bold"
               >
                 TG
-              </a>
-              <a
-                href={SITE_CONFIG.social.whatsapp}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="NEXORA WhatsApp"
-                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-emerald-500/20 hover:text-emerald-400 border border-white/10 flex items-center justify-center text-gray-300 transition-all text-xs font-bold"
-              >
-                WA
               </a>
             </div>
           </div>

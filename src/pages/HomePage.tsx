@@ -13,7 +13,8 @@ import {
   Star, 
   HelpCircle,
   Gamepad2,
-  ChevronRight
+  ChevronRight,
+  Send
 } from 'lucide-react';
 import { GAMES_DATA, REVIEWS, FAQS_DATA } from '../data/games';
 import { GameCard } from '../components/GameCard';
@@ -199,7 +200,7 @@ export const HomePage: React.FC = () => {
             </div>
             <h3 className="text-base font-bold uppercase tracking-tight text-gray-100 mb-2">24/7 Live Support</h3>
             <p className="text-xs text-gray-400 leading-relaxed">
-              Real humans on WhatsApp & Telegram ready to assist with order tracking, transaction verification, and queries.
+              Direct Telegram support (@callmeriyadh) ready to assist with order tracking, transaction verification, and queries.
             </p>
           </div>
 
@@ -386,13 +387,14 @@ export const HomePage: React.FC = () => {
                 Top Up Now
               </Link>
               <a
-                href={SITE_CONFIG.support.whatsappUrl}
+                href="https://t.me/callmeriyadh"
                 target="_blank"
                 rel="noreferrer"
-                className="w-full sm:w-auto px-8 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all flex items-center justify-center gap-2"
+                id="cta-btn-telegram"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider text-white bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 hover:border-cyan-500/50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/10 active:scale-95"
               >
-                <Headphones className="w-4 h-4 text-emerald-400" />
-                <span>Chat on WhatsApp</span>
+                <Send className="w-4 h-4 text-cyan-400" />
+                <span>Chat on Telegram</span>
               </a>
             </div>
           </div>

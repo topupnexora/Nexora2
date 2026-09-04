@@ -4,7 +4,7 @@ import {
   Package, 
   Search, 
   Clock, 
-  Phone, 
+  Send, 
   CheckCircle2, 
   AlertCircle, 
   ChevronRight, 
@@ -270,17 +270,20 @@ export const TrackOrderPage: React.FC = () => {
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 border-t border-white/5 gap-3">
               <span className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-gray-500" />
-                Normal processing timeframe is 1 to 5 minutes.
+                Normal verification timeframe is 1 to 5 minutes.
               </span>
-              <a
-                href={`${SITE_CONFIG.support.whatsappUrl}&text=Hello%20NEXORA,%20inquiring%20about%20Order%20${foundOrder.orderId}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-cyan-400 hover:underline font-bold"
-              >
-                <span>Need expedited assistance? WhatsApp Us</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://t.me/callmeriyadh"
+                  target="_blank"
+                  rel="noreferrer"
+                  id="btn-track-telegram-support"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-400 hover:text-cyan-300 font-bold text-xs transition-all active:scale-95"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Chat on Telegram</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>

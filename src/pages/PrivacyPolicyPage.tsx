@@ -63,7 +63,7 @@ export const PrivacyPolicyPage: React.FC = () => {
           <ul className="list-disc pl-5 space-y-1 text-zinc-400">
             <li>Matching incoming mobile wallet payments against order queue records.</li>
             <li>Dispatching credits to the designated game publisher server.</li>
-            <li>Responding to customer support inquiries on WhatsApp and Telegram.</li>
+            <li>Responding to customer support inquiries on Telegram (@callmeriyadh) and email.</li>
             <li>Preventing fraudulent recharge attempts and duplicate transaction exploitation.</li>
           </ul>
         </section>

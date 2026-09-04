@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   CheckCircle2, 
@@ -10,17 +10,18 @@ import {
   ShieldCheck, 
   Copy, 
   Check,
-  Send
+  Send,
+  AlertCircle
 } from 'lucide-react';
 import { useOrder } from '../context/OrderContext';
 import { SITE_CONFIG } from '../config/site';
-import { formatPrice, formatDate } from '../utils/format';
+import { formatPrice } from '../utils/format';
 
 export const OrderConfirmationPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const { getOrderById, recentCreatedOrder } = useOrder();
 
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = useState(false);
 
   const order = (orderId ? getOrderById(orderId) : null) || recentCreatedOrder;
 
@@ -36,12 +37,12 @@ export const OrderConfirmationPage: React.FC = () => {
     return (
       <div className="max-w-xl mx-auto px-4 py-20 text-center">
         <h2 className="text-2xl font-bold text-white mb-2">Order Not Found</h2>
-        <p className="text-sm text-zinc-400 mb-6">
-          Could not find recent order details for this ID.
+        <p className="text-sm text-gray-400 mb-6">
+          Could not find order details for ID: <span className="font-mono text-cyan-400">{orderId}</span>.
         </p>
         <Link
           to="/"
-          className="px-6 py-2.5 rounded-xl bg-purple-600 text-white text-sm font-bold hover:bg-purple-500 transition-colors"
+          className="px-6 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-cyan-400 transition-colors"
         >
           Return Home
         </Link>
@@ -58,25 +59,30 @@ export const OrderConfirmationPage: React.FC = () => {
         </div>
 
         <div>
-          <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-emerald-950/40 text-emerald-400 border border-emerald-500/30">
-            Order Submitted Successfully
-          </span>
-          <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-white font-display mt-3">
-            Thank You, {order.customerName}!
+          {/* Required sentence 1 */}
+          <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-white font-display mt-2">
+            Your order has been received.
           </h1>
+
+          {/* Required sentence 2 */}
+          <div className="inline-flex items-center gap-2 mt-3 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs sm:text-sm font-semibold">
+            <Clock className="w-4 h-4 text-amber-400 shrink-0" />
+            <span>Payment will be verified before processing.</span>
+          </div>
+
           <p className="text-xs sm:text-sm text-gray-400 max-w-md mx-auto mt-2">
-            Your top-up request has been registered in our system and is currently pending manual payment matching.
+            Thank you, <span className="text-white font-semibold">{order.customerName}</span>. Your top-up request has been queued for manual verification.
           </p>
         </div>
       </div>
 
       {/* Primary Details Card */}
       <div className="bg-[#0d0d0f] border border-white/5 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl space-y-6">
-        {/* Order ID and Copy banner */}
+        {/* Order ID Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-[#050505] border border-white/10 gap-3">
           <div>
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] block">
-              Your NEXORA Order ID:
+              NEXORA Order ID:
             </span>
             <span className="text-lg sm:text-xl font-black text-cyan-400 font-mono">
               {order.orderId}
@@ -86,6 +92,7 @@ export const OrderConfirmationPage: React.FC = () => {
           <button
             type="button"
             onClick={handleCopyId}
+            id="btn-copy-order-id"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold uppercase tracking-wider text-gray-200 transition-colors self-start sm:self-auto"
           >
             {copied ? (
@@ -102,83 +109,101 @@ export const OrderConfirmationPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Status Pill */}
-        <div className="flex items-center justify-between p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 text-amber-300 text-xs">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-amber-400 animate-pulse" />
+        {/* Required Status Banner: Pending */}
+        <div className="flex items-center justify-between p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 text-amber-300 text-xs sm:text-sm">
+          <div className="flex items-center gap-2.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping shrink-0" />
             <span>
-              Current Status: <strong>{order.status}</strong> (Average verification: 1-5 mins)
+              Status: <strong className="uppercase font-bold text-amber-300">Pending</strong> (Awaiting Admin Verification)
             </span>
           </div>
           <Link
             to={`/track-order?orderId=${encodeURIComponent(order.orderId)}`}
-            className="font-bold underline text-amber-300 hover:text-white"
+            className="font-bold underline text-amber-300 hover:text-white text-xs"
           >
-            Track Real-time →
+            Track Status →
           </Link>
         </div>
 
-        {/* Game & Package Items list */}
+        {/* Order Specifications Table showing all required fields */}
         <div className="space-y-3">
           <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400">
-            Purchased Top-Up Items
+            Order Specifications
           </h3>
-          <div className="space-y-2">
-            {order.items.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center justify-between p-3.5 bg-[#050505] rounded-xl border border-white/5 text-xs"
-              >
-                <div className="flex items-center gap-3">
-                  <img
-                    src={item.gameImage}
-                    alt={item.gameName}
-                    className="w-12 h-12 object-cover rounded-lg border border-white/10"
-                  />
-                  <div>
-                    <h4 className="font-bold text-white uppercase tracking-tight text-sm">{item.gameName}</h4>
-                    <p className="text-cyan-400 font-semibold">{item.quantity}x {item.packageName}</p>
-                    <p className="text-gray-400 font-mono text-[11px] mt-0.5">
-                      UID: {item.playerId} {item.serverId ? `• Zone: ${item.serverId}` : ''}
-                    </p>
-                  </div>
-                </div>
 
-                <div className="text-right">
-                  <div className="font-black text-white text-sm">
-                    {formatPrice(item.price * item.quantity)}
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-[#050505] p-5 rounded-2xl border border-white/5">
+            {/* Game */}
+            <div className="space-y-1">
+              <span className="text-gray-500 uppercase tracking-wider text-[10px] block">Game</span>
+              <span className="font-bold text-white text-sm block">{order.game}</span>
+            </div>
+
+            {/* Package */}
+            <div className="space-y-1">
+              <span className="text-gray-500 uppercase tracking-wider text-[10px] block">Package</span>
+              <span className="font-bold text-cyan-400 text-sm block">{order.package}</span>
+            </div>
+
+            {/* Player ID */}
+            <div className="space-y-1">
+              <span className="text-gray-500 uppercase tracking-wider text-[10px] block">Player ID / UID</span>
+              <span className="font-mono font-bold text-white text-sm block">
+                {order.playerId}
+                {order.serverId && (
+                  <span className="text-gray-400 text-xs font-normal ml-1.5">(Zone: {order.serverId})</span>
+                )}
+              </span>
+            </div>
+
+            {/* Payment Method */}
+            <div className="space-y-1">
+              <span className="text-gray-500 uppercase tracking-wider text-[10px] block">Payment Method</span>
+              <span className="font-bold text-white text-sm block">{order.paymentMethod}</span>
+            </div>
+
+            {/* Transaction ID */}
+            <div className="space-y-1">
+              <span className="text-gray-500 uppercase tracking-wider text-[10px] block">Transaction ID / Reference</span>
+              <span className="font-mono font-bold text-cyan-400 text-sm block break-all">
+                {order.transactionId}
+              </span>
+            </div>
+
+            {/* Total Amount */}
+            <div className="space-y-1">
+              <span className="text-gray-500 uppercase tracking-wider text-[10px] block">Total Amount</span>
+              <span className="font-black text-emerald-400 text-base block font-display">
+                {formatPrice(order.totalAmount)}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Order breakdown summary table */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-2xl bg-[#050505] border border-white/5 text-xs">
-          <div>
-            <span className="text-gray-500 block">Payment Method</span>
-            <span className="font-bold text-white mt-0.5 block">{order.paymentMethod}</span>
+        {/* Telegram Support Button - Clearly visible as requested */}
+        <div className="bg-[#050505] border border-cyan-500/20 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h4 className="font-bold text-white text-sm flex items-center gap-1.5">
+              <Send className="w-4 h-4 text-cyan-400" />
+              Need Fast Verification or Have an Issue?
+            </h4>
+            <p className="text-xs text-gray-400">
+              Message our admin on Telegram with your Order ID (<span className="text-gray-200 font-mono">{order.orderId}</span>).
+            </p>
           </div>
-          <div>
-            <span className="text-gray-500 block">Transaction ID</span>
-            <span className="font-mono font-bold text-cyan-400 mt-0.5 block truncate">
-              {order.transactionId}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-500 block">Sender Phone</span>
-            <span className="font-mono font-bold text-white mt-0.5 block">{order.senderPhone}</span>
-          </div>
-          <div>
-            <span className="text-gray-500 block">Total Amount</span>
-            <span className="font-black text-emerald-400 mt-0.5 block text-sm">
-              {formatPrice(order.totalAmount)}
-            </span>
-          </div>
+
+          <a
+            href="https://t.me/callmeriyadh"
+            target="_blank"
+            rel="noreferrer"
+            id="btn-telegram-support-confirmation"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/20 transition-all shrink-0 active:scale-95"
+          >
+            <Send className="w-4 h-4 fill-current" />
+            <span>Chat on Telegram</span>
+          </a>
         </div>
 
-        {/* Action Buttons */}
+        {/* Navigation Action Buttons */}
         <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
           <Link
             to={`/track-order?orderId=${encodeURIComponent(order.orderId)}`}
@@ -197,19 +222,6 @@ export const OrderConfirmationPage: React.FC = () => {
             <Home className="w-4 h-4" />
             <span>Back to Home</span>
           </Link>
-        </div>
-
-        {/* Support Help info */}
-        <div className="text-center pt-2 text-xs text-gray-500">
-          Have an urgent question regarding order <span className="text-gray-300 font-mono">{order.orderId}</span>?{' '}
-          <a
-            href={`${SITE_CONFIG.support.whatsappUrl}&text=Hello,%20checking%20status%20for%20order%20${order.orderId}`}
-            target="_blank"
-            rel="noreferrer"
-            className="text-cyan-400 underline font-semibold"
-          >
-            Contact WhatsApp Support
-          </a>
         </div>
       </div>
     </div>

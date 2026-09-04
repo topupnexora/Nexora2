@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, Clock, Loader2, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Clock, Loader2, XCircle, AlertCircle, Send } from 'lucide-react';
 import { OrderStatus } from '../types';
 
 interface OrderStatusTimelineProps {
@@ -20,16 +20,28 @@ export const OrderStatusTimeline: React.FC<OrderStatusTimelineProps> = ({
   if (status === 'Cancelled') {
     return (
       <div className="bg-red-950/30 border border-red-800/60 rounded-2xl p-5 text-red-200">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-red-900/50 flex items-center justify-center text-red-400">
-            <XCircle className="w-6 h-6" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-900/50 flex items-center justify-center text-red-400 shrink-0">
+              <XCircle className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className="font-bold text-base text-red-300">Order Cancelled</h4>
+              <p className="text-xs text-red-400/90 mt-0.5">
+                This order was cancelled. If you believe this is an error or already made payment, please contact our 24/7 Telegram support (@callmeriyadh) immediately.
+              </p>
+            </div>
           </div>
-          <div>
-            <h4 className="font-bold text-base text-red-300">Order Cancelled</h4>
-            <p className="text-xs text-red-400/90 mt-0.5">
-              This order was cancelled. If you believe this is an error or already made payment, please reach our 24/7 WhatsApp support immediately.
-            </p>
-          </div>
+          <a
+            href="https://t.me/callmeriyadh"
+            target="_blank"
+            rel="noreferrer"
+            id="btn-cancelled-telegram-support"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/20 shrink-0 transition-all active:scale-95"
+          >
+            <Send className="w-3.5 h-3.5" />
+            <span>Chat on Telegram</span>
+          </a>
         </div>
       </div>
     );

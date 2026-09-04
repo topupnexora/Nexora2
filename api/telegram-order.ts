@@ -6,6 +6,14 @@
  * - TELEGRAM_CHAT_ID
  */
 
+function escapeHtml(str: string | number | undefined | null): string {
+  if (str === undefined || str === null || str === '') return 'N/A';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 export default async function handler(req: any, res: any) {
   // Allow POST requests only
   if (req.method !== 'POST') {
@@ -39,27 +47,26 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({
       success: false,
       configured: false,
-      message: 'Order recorded locally. Telegram credentials are not configured in environment variables.'
+      message: 'Order recorded. Telegram credentials (TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID) are not configured.'
     });
   }
 
-  // Format exact Telegram message requested
-  const telegramMessage = `🛒 *NEW NEXORA ORDER*
+  // Format exact Telegram message requested using safe HTML mode
+  const telegramMessage = `🛒 <b>NEW NEXORA ORDER</b>
 
-*Order ID:* \`${orderId || 'N/A'}\`
-*Customer Name:* ${customerName || 'N/A'}
-*Phone:* \`${phone || 'N/A'}\`
-*Email:* ${email || 'N/A'}
-*Game:* ${game || 'N/A'}
-*Package:* ${packageName || 'N/A'}
-*Player ID:* \`${playerId || 'N/A'}\`
-*Server ID:* \`${serverId || 'N/A'}\`
-*Quantity:* ${quantity || 1}
-*Amount:* ${amount || 'N/A'}
-*Payment Method:* ${paymentMethod || 'N/A'}
-*Transaction ID:* \`${transactionId || 'N/A'}\`
-*Status:* 🟡 ${status || 'Pending'}
-*Date/Time:* ${dateTime || new Date().toISOString()}`;
+<b>Order ID:</b> <code>${escapeHtml(orderId)}</code>
+<b>Game:</b> ${escapeHtml(game)}
+<b>Package:</b> ${escapeHtml(packageName)}
+<b>Quantity:</b> ${quantity || 1}
+<b>Total Price:</b> ৳${escapeHtml(amount)}
+<b>Player ID / UID:</b> <code>${escapeHtml(playerId)}</code>
+<b>Server / Zone ID:</b> ${escapeHtml(serverId || 'N/A')}
+<b>Payment Method:</b> ${escapeHtml(paymentMethod)}
+<b>Transaction ID / Reference:</b> <code>${escapeHtml(transactionId)}</code>
+<b>Customer Name:</b> ${escapeHtml(customerName || 'N/A')}
+<b>Customer Phone:</b> <code>${escapeHtml(phone || 'N/A')}</code>
+<b>Order Date &amp; Time:</b> ${escapeHtml(dateTime || new Date().toLocaleString())}
+<b>Status:</b> 🟡 ${escapeHtml(status || 'Pending')} (Awaiting Verification)`;
 
   try {
     const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
@@ -71,7 +78,7 @@ export default async function handler(req: any, res: any) {
       body: JSON.stringify({
         chat_id: chatId,
         text: telegramMessage,
-        parse_mode: 'Markdown'
+        parse_mode: 'HTML'
       })
     });
 
