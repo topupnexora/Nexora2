@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Zap, ChevronRight, ShieldCheck, Flame } from 'lucide-react';
 import { Game } from '../types';
 import { formatPrice } from '../utils/format';
+import { HighlightTopUp } from './HighlightTopUp';
 
 interface GameCardProps {
   game: Game;
@@ -61,7 +62,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
           </h3>
 
           <p className="mt-1.5 text-xs text-gray-400 line-clamp-2 leading-relaxed">
-            {game.description}
+            <HighlightTopUp text={game.description} redClassName="text-red-500 font-semibold" />
           </p>
         </div>
 
@@ -80,7 +81,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
             id={`btn-topup-${game.id}`}
             className="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-tight text-black bg-white group-hover:bg-cyan-400 transition-colors shadow-sm"
           >
-            <span>Top Up</span>
+            <span><span className="text-red-600 font-extrabold">Top Up</span></span>
             <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </div>
         </div>

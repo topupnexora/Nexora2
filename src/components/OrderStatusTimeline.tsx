@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle2, Clock, Loader2, XCircle, AlertCircle, Send } from 'lucide-react';
 import { OrderStatus } from '../types';
+import { HighlightTopUp } from './HighlightTopUp';
 
 interface OrderStatusTimelineProps {
   status: OrderStatus;
@@ -138,7 +139,7 @@ export const OrderStatusTimeline: React.FC<OrderStatusTimelineProps> = ({
                       isCurrent ? 'text-cyan-400' : isFinished ? 'text-white' : 'text-gray-500'
                     }`}
                   >
-                    {step.label}
+                    <HighlightTopUp text={step.label} redClassName="text-red-500 font-bold" />
                   </h5>
                   <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">
                     {step.desc}

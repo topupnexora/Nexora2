@@ -66,7 +66,7 @@ export const GamesPage: React.FC = () => {
       <div className="text-center sm:text-left">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400 mb-3">
           <Gamepad2 className="w-3.5 h-3.5" />
-          <span>Official Top-Up Store</span>
+          <span>Gaming <span className="text-red-500 font-extrabold">Top-Up</span> Catalog</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-black text-white font-display uppercase tracking-tight">
           Games Catalog

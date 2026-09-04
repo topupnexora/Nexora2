@@ -135,7 +135,7 @@ export const GAMES_DATA: Game[] = [
     name: 'EA FC Mobile',
     shortName: 'FC Mobile',
     category: 'Sports',
-    description: 'Top up EA SPORTS FC Mobile Points with instant delivery in BD. Level up your Ultimate Team with officially verified FC Points.',
+    description: 'Top up EA SPORTS FC Mobile Points with instant delivery in BD. Level up your Ultimate Team with fast FC Points top-up.',
     detailedInstructions: 'Open FC Mobile Settings -> Link Accounts / Profile to copy your unique UID or Player ID.',
     image: '/images/games/ea-fc-mobile.jpg',
     bannerImage: '/images/games/ea-fc-mobile.jpg',
@@ -276,6 +276,6 @@ export const FAQS_DATA = [
   {
     id: 'customer-support',
     question: 'How do I reach NEXORA customer support?',
-    answer: 'We provide 24/7 live customer support on Telegram (@callmeriyadh: https://t.me/callmeriyadh) and official email at riadhsn.39@gmail.com. You can click the "Chat on Telegram" button anywhere on the site or visit our Support page anytime!'
+    answer: 'We provide 24/7 live customer support on Telegram (@callmeriyadh: https://t.me/callmeriyadh) and support email at riadhsn.39@gmail.com. You can click the "Chat on Telegram" button anywhere on the site or visit our Support page anytime!'
   }
 ];

@@ -5,6 +5,7 @@ import { useOrder } from '../context/OrderContext';
 import { useAuth } from '../context/AuthContext';
 import { formatPrice, formatDate } from '../utils/format';
 import { OrderStatus } from '../types';
+import { HighlightTopUp } from '../components/HighlightTopUp';
 
 export const OrderHistoryPage: React.FC = () => {
   const { orders } = useOrder();
@@ -42,9 +43,13 @@ export const OrderHistoryPage: React.FC = () => {
             Order History
           </h1>
           <p className="text-xs sm:text-sm text-gray-400 mt-1">
-            {user
-              ? `Displaying stored top-up orders for ${user.name}`
-              : 'Displaying recent browser session orders'}
+            {user ? (
+              <>
+                Displaying stored <span className="text-red-500 font-semibold">top-up</span> orders for {user.name}
+              </>
+            ) : (
+              'Displaying recent browser session orders'
+            )}
           </p>
         </div>
 
@@ -52,7 +57,7 @@ export const OrderHistoryPage: React.FC = () => {
           to="/games"
           className="px-5 py-2.5 rounded-lg bg-white text-black font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 transition-colors self-start sm:self-auto shadow-xl"
         >
-          New Top-Up
+          New <span className="text-red-600 font-black">Top-Up</span>
         </Link>
       </div>
 
@@ -141,7 +146,7 @@ export const OrderHistoryPage: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-white uppercase tracking-tight truncate">{item.gameName}</p>
                       <p className="text-cyan-400 font-medium">
-                        {item.quantity}x {item.packageName}
+                        {item.quantity}x <HighlightTopUp text={item.packageName} redClassName="text-red-500 font-bold" />
                       </p>
                       <p className="text-[11px] text-gray-500 font-mono">
                         UID: {item.playerId} {item.serverId ? `(${item.serverId})` : ''}
@@ -184,9 +189,13 @@ export const OrderHistoryPage: React.FC = () => {
           <ShoppingBag className="w-10 h-10 text-gray-600 mx-auto mb-3" />
           <h3 className="text-base font-bold uppercase tracking-tight text-white">No Orders Found</h3>
           <p className="text-xs text-gray-400 mt-1">
-            {searchTerm || statusFilter !== 'All'
-              ? 'No orders match your active search or status filter.'
-              : 'You have not placed any top-up orders yet.'}
+            {searchTerm || statusFilter !== 'All' ? (
+              'No orders match your active search or status filter.'
+            ) : (
+              <>
+                You have not placed any <span className="text-red-500 font-semibold">top-up</span> orders yet.
+              </>
+            )}
           </p>
           <Link
             to="/games"

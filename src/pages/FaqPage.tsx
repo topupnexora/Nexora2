@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { FAQS_DATA } from '../data/games';
 import { SITE_CONFIG } from '../config/site';
+import { HighlightTopUp } from '../components/HighlightTopUp';
 
 export const FaqPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -42,7 +43,7 @@ export const FaqPage: React.FC = () => {
           Frequently Asked Questions
         </h1>
         <p className="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto">
-          Everything you need to know about top-ups, UID safety, bKash & Nagad payments, and delivery timelines on {SITE_CONFIG.name}.
+          Everything you need to know about <span className="text-red-500 font-semibold">top-ups</span>, UID safety, bKash & Nagad payments, and delivery timelines on {SITE_CONFIG.name}.
         </p>
       </div>
 
@@ -77,7 +78,7 @@ export const FaqPage: React.FC = () => {
                 >
                   <span className="text-sm sm:text-base font-bold text-white flex items-center gap-3">
                     <span className="w-2 h-2 rounded-full bg-cyan-400 shrink-0" />
-                    {faq.question}
+                    <HighlightTopUp text={faq.question} redClassName="text-red-500 font-bold" />
                   </span>
                   <div className="p-1 rounded-lg bg-zinc-800 text-zinc-400 shrink-0">
                     {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -86,7 +87,7 @@ export const FaqPage: React.FC = () => {
 
                 {isOpen && (
                   <div className="px-5 sm:px-6 pb-6 pt-1 border-t border-zinc-800/80 text-xs sm:text-sm text-zinc-400 leading-relaxed animate-in fade-in duration-200">
-                    {faq.answer}
+                    <HighlightTopUp text={faq.answer} redClassName="text-red-500 font-semibold" />
                   </div>
                 )}
               </div>
@@ -104,7 +105,7 @@ export const FaqPage: React.FC = () => {
         <div>
           <h4 className="text-lg font-bold text-white">Still have questions?</h4>
           <p className="text-xs text-zinc-400 mt-1">
-            Our support agents are available around the clock to help with any payment or top-up issue.
+            Our support agents are available around the clock to help with any payment or <span className="text-red-500 font-semibold">top-up</span> issue.
           </p>
         </div>
         <Link

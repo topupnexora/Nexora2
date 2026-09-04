@@ -4,14 +4,16 @@ import { generateOrderId } from '../utils/format';
 
 interface CreateOrderInput {
   customerName: string;
-  phone: string;
+  customerPhone?: string;
+  phone?: string;
   email?: string;
   items: CartItem[];
   totalAmount: number;
   paymentMethod: PaymentMethod;
-  paymentNumberSentTo: string;
-  senderPhone: string;
-  transactionId: string;
+  paymentSenderNumber: string;
+  senderPhone?: string;
+  transactionId?: string;
+  paymentNumberSentTo?: string;
 }
 
 interface OrderContextType {
@@ -42,19 +44,25 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const seedOrders: Order[] = [
       {
         orderId: 'NEX-20260902-841920',
-        customerName: 'Shakib Gamer',
-        phone: '01712345678',
-        email: 'gamer@nexora.gg',
         game: 'Free Fire',
         package: '610 Diamonds',
-        playerId: '8271049281',
         quantity: 1,
+        playerId: '8271049281',
+        serverZoneId: 'N/A',
+        serverId: undefined,
+        customerName: 'Shakib Gamer',
+        customerPhone: '01712345678',
+        phone: '01712345678',
+        email: 'gamer@nexora.gg',
+        paymentMethod: 'bKash',
+        paymentSenderNumber: '01712345678',
+        senderPhone: '01712345678',
+        paymentNumberSentTo: '01638749806',
+        transactionId: '9K4M8X2A10',
+        amount: 475,
         totalPrice: 475,
         totalAmount: 475,
-        paymentMethod: 'bKash',
-        paymentNumberSentTo: '01638749806',
-        senderPhone: '01712345678',
-        transactionId: '9K4M8X2A10',
+        dateTime: new Date(Date.now() - 86400000 * 2).toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }),
         orderDateTime: new Date(Date.now() - 86400000 * 2).toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }),
         status: 'Completed',
         createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
@@ -81,19 +89,25 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       },
       {
         orderId: 'NEX-20260904-512839',
-        customerName: 'Tanvir Ahmed',
-        phone: '01898765432',
-        email: 'tanvir@gmail.com',
         game: 'PUBG Mobile',
         package: '660 UC',
-        playerId: '5129384710',
         quantity: 1,
+        playerId: '5129384710',
+        serverZoneId: 'Global',
+        serverId: 'Global',
+        customerName: 'Tanvir Ahmed',
+        customerPhone: '01898765432',
+        phone: '01898765432',
+        email: 'tanvir@gmail.com',
+        paymentMethod: 'Nagad',
+        paymentSenderNumber: '01898765432',
+        senderPhone: '01898765432',
+        paymentNumberSentTo: '01638749806',
+        transactionId: 'NG77194018',
+        amount: 950,
         totalPrice: 950,
         totalAmount: 950,
-        paymentMethod: 'Nagad',
-        paymentNumberSentTo: '01638749806',
-        senderPhone: '01898765432',
-        transactionId: 'NG77194018',
+        dateTime: new Date(Date.now() - 1000 * 60 * 12).toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }),
         orderDateTime: new Date(Date.now() - 1000 * 60 * 12).toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }),
         status: 'Processing',
         createdAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
@@ -134,7 +148,11 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const createOrder = async (input: CreateOrderInput) => {
     const orderId = generateOrderId();
     const now = new Date().toISOString();
-    const orderDateTime = new Date(now).toLocaleString('en-US', { timeZone: 'Asia/Dhaka' });
+    const orderDateTime = new Date(now).toLocaleString('en-US', {
+      timeZone: 'Asia/Dhaka',
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    });
 
     const primaryItem = input.items[0];
     const gameName = input.items.map((i) => i.gameName).join(', ') || primaryItem?.gameName || 'Game Top-Up';
@@ -143,22 +161,32 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const playerId = input.items.map((i) => `${i.playerId}${i.serverId ? ` (${i.serverId})` : ''}`).join(', ') || primaryItem?.playerId || '';
     const serverId = primaryItem?.serverId || undefined;
 
+    const contactPhone = (input.customerPhone || input.phone || '').trim();
+    const senderNumber = (input.paymentSenderNumber || input.senderPhone || '').trim();
+    const trxId = input.transactionId && input.transactionId.trim() ? input.transactionId.trim().toUpperCase() : 'Not provided';
+    const receivingNumber = input.paymentNumberSentTo || '01638749806';
+
     const newOrder: Order = {
       orderId,
-      customerName: input.customerName.trim(),
-      phone: input.phone.trim(),
-      email: input.email ? input.email.trim() : undefined,
       game: gameName,
       package: packageName,
-      playerId,
-      serverId,
       quantity: totalQty,
+      playerId,
+      serverZoneId: serverId || 'N/A',
+      serverId: serverId || undefined,
+      customerName: input.customerName.trim(),
+      customerPhone: contactPhone,
+      phone: contactPhone,
+      email: input.email ? input.email.trim() : undefined,
+      paymentMethod: input.paymentMethod,
+      paymentSenderNumber: senderNumber,
+      senderPhone: senderNumber,
+      paymentNumberSentTo: receivingNumber,
+      transactionId: trxId,
+      amount: input.totalAmount,
       totalPrice: input.totalAmount,
       totalAmount: input.totalAmount,
-      paymentMethod: input.paymentMethod,
-      paymentNumberSentTo: input.paymentNumberSentTo,
-      senderPhone: input.senderPhone.trim(),
-      transactionId: input.transactionId.trim().toUpperCase(),
+      dateTime: orderDateTime,
       orderDateTime,
       status: 'Pending',
       createdAt: now,
@@ -168,7 +196,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         {
           status: 'Pending',
           timestamp: now,
-          note: `Order submitted with ${input.paymentMethod} (TrxID: ${input.transactionId.trim().toUpperCase()}). Verification in queue.`
+          note: `Order submitted with ${input.paymentMethod} (Sender: ${senderNumber}, TrxID: ${trxId}). Verification in queue.`
         }
       ]
     };
@@ -181,19 +209,21 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       const telegramPayload = {
         orderId: newOrder.orderId,
-        customerName: newOrder.customerName,
-        phone: newOrder.phone,
-        email: newOrder.email || 'Not provided',
         game: newOrder.game,
         package: newOrder.package,
-        playerId: newOrder.playerId,
-        serverId: newOrder.serverId || 'N/A',
         quantity: newOrder.quantity,
-        amount: newOrder.totalAmount,
+        playerId: newOrder.playerId,
+        serverZoneId: newOrder.serverZoneId || 'N/A',
         paymentMethod: newOrder.paymentMethod,
-        transactionId: newOrder.transactionId,
-        status: newOrder.status,
-        dateTime: newOrder.orderDateTime
+        nexoraReceivingNumber: '01638749806',
+        paymentSenderNumber: newOrder.paymentSenderNumber,
+        amount: newOrder.amount,
+        transactionId: newOrder.transactionId || 'Not provided',
+        customerName: newOrder.customerName,
+        customerPhone: newOrder.customerPhone,
+        customerEmail: newOrder.email || 'Not provided',
+        dateTime: newOrder.dateTime,
+        status: newOrder.status
       };
 
       fetch('/api/telegram-order', {

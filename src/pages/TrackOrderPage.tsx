@@ -18,6 +18,7 @@ import { OrderStatusTimeline } from '../components/OrderStatusTimeline';
 import { SITE_CONFIG } from '../config/site';
 import { formatPrice, formatDate, maskPhone, maskTrxId } from '../utils/format';
 import { OrderStatus } from '../types';
+import { HighlightTopUp } from '../components/HighlightTopUp';
 
 export const TrackOrderPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -81,7 +82,7 @@ export const TrackOrderPage: React.FC = () => {
           <span>Real-Time Status Tracker</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-black text-white font-display uppercase tracking-tight">
-          Track Your Top-Up Order
+          Track Your <span className="text-red-500 font-black">Top-Up</span> Order
         </h1>
         <p className="text-xs sm:text-sm text-gray-400 max-w-md mx-auto">
           Enter your Order ID (format: NEX-YYYYMMDD-XXXXXX) to view real-time delivery status and transaction logs.
@@ -207,7 +208,7 @@ export const TrackOrderPage: React.FC = () => {
             {/* Items details */}
             <div className="space-y-3">
               <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400">
-                Top-Up Items & Target Account
+                <span className="text-red-500 font-bold">Top-Up</span> Items & Target Account
               </h4>
               <div className="space-y-2">
                 {foundOrder.items.map((item: any) => (
@@ -223,7 +224,9 @@ export const TrackOrderPage: React.FC = () => {
                       />
                       <div>
                         <h5 className="font-bold text-white uppercase tracking-tight text-sm">{item.gameName}</h5>
-                        <p className="text-cyan-400 font-semibold">{item.quantity}x {item.packageName}</p>
+                        <p className="text-cyan-400 font-semibold">
+                          {item.quantity}x <HighlightTopUp text={item.packageName} redClassName="text-red-500 font-bold" />
+                        </p>
                         <p className="text-gray-400 font-mono mt-0.5">
                           Target Player UID: <strong className="text-gray-200">{item.playerId}</strong>
                           {item.serverId && ` (Zone: ${item.serverId})`}
@@ -247,15 +250,15 @@ export const TrackOrderPage: React.FC = () => {
                 </span>
               </div>
               <div>
-                <span className="text-gray-500 block">Sender Phone</span>
+                <span className="text-gray-500 block">Payment Sender</span>
                 <span className="font-mono font-semibold text-gray-200 block mt-0.5">
-                  {maskPhone(foundOrder.senderPhone || foundOrder.phone)}
+                  {maskPhone(foundOrder.paymentSenderNumber || foundOrder.senderPhone || foundOrder.customerPhone || foundOrder.phone)}
                 </span>
               </div>
               <div>
                 <span className="text-gray-500 block">Transaction ID</span>
                 <span className="font-mono font-semibold text-cyan-400 block mt-0.5">
-                  {maskTrxId(foundOrder.transactionId)}
+                  {foundOrder.transactionId ? maskTrxId(foundOrder.transactionId) : <span className="text-gray-500 italic">Optional</span>}
                 </span>
               </div>
               <div>

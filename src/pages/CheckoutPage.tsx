@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   ShieldCheck, 
@@ -14,7 +14,8 @@ import {
   Building2,
   Coins,
   Send,
-  Smartphone
+  Smartphone,
+  X
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -22,9 +23,10 @@ import { useOrder } from '../context/OrderContext';
 import { SITE_CONFIG } from '../config/site';
 import { PAYMENT_CONFIG, SupportedPaymentMethod } from '../config/payment';
 import { formatPrice, isValidBDPhone } from '../utils/format';
+import { HighlightTopUp } from '../components/HighlightTopUp';
 
 export const CheckoutPage: React.FC = () => {
-  const { cart, total, clearCart } = useCart();
+  const { cart, total, clearCart, updatePlayerId } = useCart();
   const { user } = useAuth();
   const { createOrder } = useOrder();
   const navigate = useNavigate();
@@ -36,21 +38,35 @@ export const CheckoutPage: React.FC = () => {
     }
   }, [cart, navigate]);
 
-  // Customer Information
+  // Customer Contact Information
   const [customerName, setCustomerName] = useState(user?.name || '');
-  const [phone, setPhone] = useState(user?.phone || '');
+  const [customerPhone, setCustomerPhone] = useState(user?.phone || '');
   const [email, setEmail] = useState(user?.email || '');
 
-  // Payment Selection: bKash, Nagad, Binance Pay, Bank Transfer
+  // Payment Selection: bKash, Nagad (Active methods)
   const [paymentMethod, setPaymentMethod] = useState<SupportedPaymentMethod>('bKash');
-  const [senderIdentifier, setSenderIdentifier] = useState('');
+  // Customer Payment Sender Number (Separate from contact phone - never autofilled)
+  const [paymentSenderNumber, setPaymentSenderNumber] = useState('');
+  // Transaction ID is strictly OPTIONAL
   const [transactionId, setTransactionId] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(true);
+
+  // Player ID error popup / toast state
+  const [playerIdErrorToast, setPlayerIdErrorToast] = useState(false);
+  const toastTimeoutRef = useRef<any>(null);
 
   // Copy states
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleCopyText = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -61,26 +77,55 @@ export const CheckoutPage: React.FC = () => {
   const validateForm = () => {
     const errs: Record<string, string> = {};
 
-    // 1. Customer Information
+    // 1. Validate Player ID / Character ID for all cart items
+    let missingPlayerIdIndex = -1;
+    for (let i = 0; i < cart.length; i++) {
+      if (!cart[i].playerId || !cart[i].playerId.trim()) {
+        missingPlayerIdIndex = i;
+        break;
+      }
+    }
+
+    if (missingPlayerIdIndex !== -1) {
+      setPlayerIdErrorToast(true);
+      errs[`item_${missingPlayerIdIndex}_playerId`] = 'Please enter your Player ID First';
+
+      // Auto-focus and scroll to the missing Player ID input
+      setTimeout(() => {
+        const inputEl = document.getElementById(`checkout-item-player-id-${missingPlayerIdIndex}`);
+        if (inputEl) {
+          inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          inputEl.focus();
+        }
+      }, 50);
+
+      // Auto-hide toast after 4.5 seconds
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+      toastTimeoutRef.current = setTimeout(() => {
+        setPlayerIdErrorToast(false);
+      }, 4500);
+
+      setFormErrors(errs);
+      return false;
+    }
+
+    // 2. Customer Contact Information
     if (!customerName.trim()) {
       errs.customerName = 'Please enter your full name.';
     }
 
-    if (!phone.trim()) {
-      errs.phone = 'Your contact mobile number is required.';
-    } else if (!isValidBDPhone(phone)) {
-      errs.phone = 'Please enter a valid 11-digit Bangladeshi phone number (01XXXXXXXXX).';
+    if (!customerPhone.trim()) {
+      errs.customerPhone = 'Your contact mobile number is required.';
+    } else if (!isValidBDPhone(customerPhone)) {
+      errs.customerPhone = 'Please enter a valid 11-digit Bangladeshi phone number (01XXXXXXXXX).';
     }
 
-    // 2. Validate Cart Items: Player ID & Server/Zone ID & Quantity
+    // 3. Validate Cart Items: Server/Zone ID & Quantity
     if (cart.length === 0) {
       errs.general = 'Your cart is empty. Please select a package.';
     }
 
     cart.forEach((item, index) => {
-      if (!item.playerId || !item.playerId.trim()) {
-        errs[`item_${index}_playerId`] = `${item.gameName} requires a valid Player ID / UID.`;
-      }
       // MLBB or games requiring Server/Zone ID
       if (item.gameId === 'mobile-legends' && (!item.serverId || !item.serverId.trim())) {
         errs[`item_${index}_serverId`] = `${item.gameName} requires a Zone ID / Server ID.`;
@@ -90,35 +135,30 @@ export const CheckoutPage: React.FC = () => {
       }
     });
 
-    // 3. Validate Total Amount
+    // 4. Validate Total Amount
     if (total <= 0) {
       errs.general = 'Total amount is invalid. Please select valid game packages.';
     }
 
-    // 4. Validate Payment Details based on selected payment method
+    // 5. Validate Payment Sender Number (REQUIRED for bKash & Nagad)
     if (!paymentMethod) {
       errs.paymentMethod = 'Please select a payment method.';
     }
 
-    if (!senderIdentifier.trim()) {
-      if (paymentMethod === 'bKash') {
-        errs.senderIdentifier = 'Please enter the bKash sender number you transferred from.';
-      } else if (paymentMethod === 'Nagad') {
-        errs.senderIdentifier = 'Please enter the Nagad sender number you transferred from.';
-      } else if (paymentMethod === 'Binance Pay') {
-        errs.senderIdentifier = 'Please enter your Binance Pay ID, UID, or sender email.';
-      } else if (paymentMethod === 'Bank Transfer') {
-        errs.senderIdentifier = 'Please enter your sender Bank Account Name or Number.';
-      }
-    } else if ((paymentMethod === 'bKash' || paymentMethod === 'Nagad') && !isValidBDPhone(senderIdentifier)) {
-      errs.senderIdentifier = 'Please enter a valid 11-digit Bangladeshi mobile number (01XXXXXXXXX).';
+    if (!paymentSenderNumber.trim()) {
+      errs.paymentSenderNumber = 'Please enter your Payment Sender Number';
+      setTimeout(() => {
+        const senderInput = document.getElementById('checkout-payment-sender-number');
+        if (senderInput) {
+          senderInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          senderInput.focus();
+        }
+      }, 50);
+    } else if ((paymentMethod === 'bKash' || paymentMethod === 'Nagad') && !isValidBDPhone(paymentSenderNumber)) {
+      errs.paymentSenderNumber = 'Please enter a valid 11-digit Bangladeshi mobile number (01XXXXXXXXX).';
     }
 
-    if (!transactionId.trim()) {
-      errs.transactionId = `Transaction / Reference ID is required after making payment.`;
-    } else if (transactionId.trim().length < 4) {
-      errs.transactionId = 'Transaction ID is too short. Please copy the complete TrxID from your receipt.';
-    }
+    // Note: Transaction ID is strictly OPTIONAL. No validation error if left empty!
 
     if (!agreeTerms) {
       errs.agreeTerms = 'Please confirm that you have read and agreed to the verification process.';
@@ -135,32 +175,29 @@ export const CheckoutPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Determine what number/address the payment was sent to
-      let paymentNumberSentTo = PAYMENT_CONFIG.BKASH_NUMBER;
-      if (paymentMethod === 'Nagad') {
-        paymentNumberSentTo = PAYMENT_CONFIG.NAGAD_NUMBER;
-      } else if (paymentMethod === 'Binance Pay') {
-        paymentNumberSentTo = PAYMENT_CONFIG.BINANCE_PAY_ID_OR_ADDRESS;
-      } else if (paymentMethod === 'Bank Transfer') {
-        paymentNumberSentTo = `${PAYMENT_CONFIG.BANK_NAME} - A/C: ${PAYMENT_CONFIG.BANK_ACCOUNT_NUMBER}`;
-      }
+      // NEXORA receiving number for both bKash and Nagad
+      const paymentNumberSentTo = PAYMENT_CONFIG.RECEIVING_NUMBER || '01638749806';
+      // Transaction ID is optional: if empty, send "Not provided"
+      const finalTrxId = transactionId.trim() ? transactionId.trim().toUpperCase() : 'Not provided';
 
       const result = await createOrder({
-        customerName,
-        phone,
-        email: email || undefined,
+        customerName: customerName.trim(),
+        customerPhone: customerPhone.trim(),
+        phone: customerPhone.trim(),
+        email: email ? email.trim() : undefined,
         items: cart,
         totalAmount: total,
         paymentMethod,
         paymentNumberSentTo,
-        senderPhone: senderIdentifier.trim(),
-        transactionId: transactionId.trim().toUpperCase()
+        paymentSenderNumber: paymentSenderNumber.trim(),
+        senderPhone: paymentSenderNumber.trim(),
+        transactionId: finalTrxId
       });
 
       if (result.success && result.order) {
-        // Do not clear the cart until the order has been successfully submitted
+        // Clear the cart only after successful order submission
         clearCart();
-        // Navigate to confirmation page with created order
+        // Navigate to confirmation page
         navigate(`/order-confirmation/${result.order.orderId}`);
       } else {
         setFormErrors({ general: result.error || 'Failed to submit order. Please try again.' });
@@ -175,7 +212,34 @@ export const CheckoutPage: React.FC = () => {
   if (cart.length === 0) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8 relative">
+      {/* Red Error Toast for Missing Player ID */}
+      {playerIdErrorToast && (
+        <div
+          role="alert"
+          id="checkout-player-id-error-toast"
+          className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[92%] sm:w-auto min-w-[320px] max-w-md bg-red-950/95 border-2 border-red-500 text-white px-5 py-3.5 rounded-2xl shadow-[0_10px_40px_rgba(239,68,68,0.5)] backdrop-blur-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-200"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-red-900/80 border border-red-500/60 flex items-center justify-center text-red-300 shrink-0">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+            </div>
+            <span className="text-xs sm:text-sm font-bold text-red-100 tracking-wide">
+              Please enter your Player ID First
+            </span>
+          </div>
+          <button
+            type="button"
+            id="btn-close-checkout-error-toast"
+            onClick={() => setPlayerIdErrorToast(false)}
+            aria-label="Close error notice"
+            className="p-1 rounded-lg text-red-300 hover:text-white hover:bg-red-900/60 transition-colors shrink-0 ml-1"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Breadcrumbs */}
       <div className="flex items-center justify-between">
         <Link
@@ -263,25 +327,34 @@ export const CheckoutPage: React.FC = () => {
 
               <div>
                 <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  Contact Mobile Number <span className="text-red-400">*</span>
+                  Customer Contact Number <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="tel"
                   id="checkout-phone"
-                  value={phone}
+                  value={customerPhone}
                   onChange={(e) => {
-                    setPhone(e.target.value);
-                    if (formErrors.phone) setFormErrors({ ...formErrors, phone: '' });
+                    setCustomerPhone(e.target.value);
+                    if (formErrors.customerPhone) {
+                      setFormErrors((prev) => {
+                        const copy = { ...prev };
+                        delete copy.customerPhone;
+                        return copy;
+                      });
+                    }
                   }}
                   placeholder="01XXXXXXXXX"
                   className={`w-full bg-[#050505] border ${
-                    formErrors.phone ? 'border-red-500 ring-1 ring-red-500' : 'border-white/10'
+                    formErrors.customerPhone ? 'border-red-500 ring-2 ring-red-500/50 bg-red-950/20' : 'border-white/10'
                   } rounded-xl px-4 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-cyan-400 font-mono`}
                 />
-                {formErrors.phone && (
-                  <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    <span>{formErrors.phone}</span>
+                <p className="text-[11px] text-gray-400 mt-1">
+                  NEXORA will contact you at this number for order delivery &amp; confirmation.
+                </p>
+                {formErrors.customerPhone && (
+                  <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1 font-medium">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{formErrors.customerPhone}</span>
                   </p>
                 )}
               </div>
@@ -313,20 +386,24 @@ export const CheckoutPage: React.FC = () => {
                   Select Payment Method
                 </h3>
                 <p className="text-xs text-gray-400">
-                  Choose between Mobile Wallets, Binance Pay, or Bank Transfer.
+                  Choose between bKash or Nagad.
                 </p>
               </div>
             </div>
 
-            {/* Payment Options Grid: bKash, Nagad, Binance Pay, Bank Transfer */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {/* Payment Options Grid: bKash, Nagad (Active) */}
+            <div className="grid grid-cols-2 gap-3 max-w-md">
               {/* bKash */}
               <button
                 type="button"
                 id="btn-select-bkash"
                 onClick={() => {
                   setPaymentMethod('bKash');
-                  setFormErrors((prev) => ({ ...prev, senderIdentifier: '', transactionId: '' }));
+                  setFormErrors((prev) => {
+                    const copy = { ...prev };
+                    delete copy.paymentSenderNumber;
+                    return copy;
+                  });
                 }}
                 className={`p-4 rounded-2xl border text-left transition-all relative ${
                   paymentMethod === 'bKash'
@@ -350,7 +427,11 @@ export const CheckoutPage: React.FC = () => {
                 id="btn-select-nagad"
                 onClick={() => {
                   setPaymentMethod('Nagad');
-                  setFormErrors((prev) => ({ ...prev, senderIdentifier: '', transactionId: '' }));
+                  setFormErrors((prev) => {
+                    const copy = { ...prev };
+                    delete copy.paymentSenderNumber;
+                    return copy;
+                  });
                 }}
                 className={`p-4 rounded-2xl border text-left transition-all relative ${
                   paymentMethod === 'Nagad'
@@ -367,54 +448,6 @@ export const CheckoutPage: React.FC = () => {
                 <div className="font-bold text-white text-sm">Nagad</div>
                 <div className="text-[10px] text-gray-400 mt-0.5">Send Money</div>
               </button>
-
-              {/* Binance Pay */}
-              <button
-                type="button"
-                id="btn-select-binance"
-                onClick={() => {
-                  setPaymentMethod('Binance Pay');
-                  setFormErrors((prev) => ({ ...prev, senderIdentifier: '', transactionId: '' }));
-                }}
-                className={`p-4 rounded-2xl border text-left transition-all relative ${
-                  paymentMethod === 'Binance Pay'
-                    ? 'bg-yellow-950/25 border-yellow-500 ring-1 ring-yellow-500/40 text-white shadow-lg'
-                    : 'bg-[#050505] border-white/10 text-gray-400 hover:border-white/20'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <Coins className="w-4 h-4 text-yellow-400" />
-                  {paymentMethod === 'Binance Pay' && (
-                    <Check className="w-4 h-4 text-yellow-400 stroke-[3]" />
-                  )}
-                </div>
-                <div className="font-bold text-white text-sm">Binance Pay</div>
-                <div className="text-[10px] text-gray-400 mt-0.5">Pay ID / USDT</div>
-              </button>
-
-              {/* Bank Transfer */}
-              <button
-                type="button"
-                id="btn-select-bank"
-                onClick={() => {
-                  setPaymentMethod('Bank Transfer');
-                  setFormErrors((prev) => ({ ...prev, senderIdentifier: '', transactionId: '' }));
-                }}
-                className={`p-4 rounded-2xl border text-left transition-all relative ${
-                  paymentMethod === 'Bank Transfer'
-                    ? 'bg-emerald-950/25 border-emerald-500 ring-1 ring-emerald-500/40 text-white shadow-lg'
-                    : 'bg-[#050505] border-white/10 text-gray-400 hover:border-white/20'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <Building2 className="w-4 h-4 text-emerald-400" />
-                  {paymentMethod === 'Bank Transfer' && (
-                    <Check className="w-4 h-4 text-emerald-400 stroke-[3]" />
-                  )}
-                </div>
-                <div className="font-bold text-white text-sm">Bank Transfer</div>
-                <div className="text-[10px] text-gray-400 mt-0.5">Direct Banking</div>
-              </button>
             </div>
 
             {/* DYNAMIC PAYMENT INSTRUCTIONS & RECIPIENT DETAILS */}
@@ -429,7 +462,7 @@ export const CheckoutPage: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full bg-pink-500 shrink-0" />
                         <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-pink-400">
-                          NEXORA Official bKash Number ({PAYMENT_CONFIG.BKASH_TYPE})
+                          NEXORA bKash Number
                         </span>
                       </div>
                       <div className="text-2xl sm:text-3xl font-black text-white font-mono tracking-wider pt-1 select-all">
@@ -504,7 +537,7 @@ export const CheckoutPage: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shrink-0" />
                         <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-orange-400">
-                          NEXORA Official Nagad Number ({PAYMENT_CONFIG.NAGAD_TYPE})
+                          NEXORA Nagad Number
                         </span>
                       </div>
                       <div className="text-2xl sm:text-3xl font-black text-white font-mono tracking-wider pt-1 select-all">
@@ -633,7 +666,7 @@ export const CheckoutPage: React.FC = () => {
                 <div className="bg-[#050505] border border-emerald-500/20 rounded-2xl p-5 space-y-3">
                   <div className="flex items-center justify-between border-b border-white/5 pb-3">
                     <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-emerald-400">
-                      NEXORA Official Bank Account Details
+                      NEXORA Bank Account Details
                     </span>
 
                     <button
@@ -700,54 +733,45 @@ export const CheckoutPage: React.FC = () => {
               </div>
             )}
 
-            {/* SENDER INPUTS (Customized to match selected payment method) */}
+            {/* SENDER INPUTS & TRANSACTION ID */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div>
-                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  {paymentMethod === 'bKash' && 'Sender bKash Number (Paid From)'}
-                  {paymentMethod === 'Nagad' && 'Sender Nagad Number (Paid From)'}
-                  {paymentMethod === 'Binance Pay' && 'Sender Binance Pay ID / Email / Nickname'}
-                  {paymentMethod === 'Bank Transfer' && 'Sender Bank Account Name / Number'}
-                  <span className="text-red-400"> *</span>
+                <label htmlFor="checkout-payment-sender-number" className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                  Payment Sender Number <span className="text-red-400">*</span>
                 </label>
                 <input
-                  type="text"
-                  id="checkout-sender-identifier"
-                  value={senderIdentifier}
+                  type="tel"
+                  id="checkout-payment-sender-number"
+                  value={paymentSenderNumber}
                   onChange={(e) => {
-                    setSenderIdentifier(e.target.value);
-                    if (formErrors.senderIdentifier) setFormErrors({ ...formErrors, senderIdentifier: '' });
+                    setPaymentSenderNumber(e.target.value);
+                    if (formErrors.paymentSenderNumber) {
+                      setFormErrors((prev) => {
+                        const copy = { ...prev };
+                        delete copy.paymentSenderNumber;
+                        return copy;
+                      });
+                    }
                   }}
-                  placeholder={
-                    paymentMethod === 'bKash'
-                      ? 'e.g. 017XXXXXXXX'
-                      : paymentMethod === 'Nagad'
-                      ? 'e.g. 018XXXXXXXX'
-                      : paymentMethod === 'Binance Pay'
-                      ? 'Binance ID or Email'
-                      : 'Account Name or Number'
-                  }
+                  placeholder={paymentMethod === 'bKash' ? 'e.g. 017XXXXXXXX' : 'e.g. 018XXXXXXXX'}
                   className={`w-full bg-[#050505] border ${
-                    formErrors.senderIdentifier ? 'border-red-500 ring-1 ring-red-500' : 'border-white/10'
+                    formErrors.paymentSenderNumber ? 'border-red-500 ring-2 ring-red-500/50 bg-red-950/20' : 'border-white/10'
                   } rounded-xl px-4 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-cyan-400 font-mono`}
                 />
                 <p className="text-[11px] text-gray-400 mt-1">
-                  {paymentMethod === 'bKash' || paymentMethod === 'Nagad'
-                    ? 'The mobile number you used to send money'
-                    : 'The account you sent the payment from'}
+                  Enter the bKash/Nagad number you used to send the payment.
                 </p>
-                {formErrors.senderIdentifier && (
-                  <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    <span>{formErrors.senderIdentifier}</span>
+                {formErrors.paymentSenderNumber && (
+                  <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1 font-medium">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{formErrors.paymentSenderNumber}</span>
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  {paymentMethod === 'Bank Transfer' ? 'Bank Reference / Journal / Trx ID' : 'Transaction ID (TrxID)'}
-                  <span className="text-red-400"> *</span>
+                <label htmlFor="checkout-trx-id" className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                  Transaction ID (<span className="font-bold text-yellow-400">Optional</span>)
                 </label>
                 <input
                   type="text"
@@ -755,22 +779,13 @@ export const CheckoutPage: React.FC = () => {
                   value={transactionId}
                   onChange={(e) => {
                     setTransactionId(e.target.value.toUpperCase());
-                    if (formErrors.transactionId) setFormErrors({ ...formErrors, transactionId: '' });
                   }}
                   placeholder="e.g. 9K4M8X2A10"
-                  className={`w-full bg-[#050505] border ${
-                    formErrors.transactionId ? 'border-red-500 ring-1 ring-red-500' : 'border-white/10'
-                  } rounded-xl px-4 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-cyan-400 font-mono uppercase`}
+                  className="w-full bg-[#050505] border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-cyan-400 font-mono uppercase"
                 />
                 <p className="text-[11px] text-gray-400 mt-1">
-                  Enter your Transaction ID after payment (from confirmation SMS)
+                  Enter your Transaction ID if available. If left empty, your order will still be processed.
                 </p>
-                {formErrors.transactionId && (
-                  <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    <span>{formErrors.transactionId}</span>
-                  </p>
-                )}
               </div>
             </div>
 
@@ -818,28 +833,55 @@ export const CheckoutPage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div className="min-w-0 flex-1 pr-2">
                       <p className="font-bold text-white uppercase tracking-tight truncate">{item.gameName}</p>
-                      <p className="text-cyan-400 font-medium">{item.quantity}x {item.packageName}</p>
+                      <p className="text-cyan-400 font-medium">
+                        {item.quantity}x <HighlightTopUp text={item.packageName} redClassName="text-red-500 font-bold" />
+                      </p>
                     </div>
                     <div className="font-black text-white shrink-0">
                       {formatPrice(item.price * item.quantity)}
                     </div>
                   </div>
 
-                  <div className="text-[11px] text-gray-400 font-mono flex items-center justify-between border-t border-white/5 pt-1">
-                    <span>UID: <strong className="text-gray-200">{item.playerId || 'Missing'}</strong></span>
-                    {item.serverId && <span>Zone: <strong className="text-gray-200">{item.serverId}</strong></span>}
+                  <div className="text-[11px] text-gray-400 font-mono flex items-center justify-between border-t border-white/5 pt-1.5">
+                    <span className="text-[10px] uppercase font-bold text-gray-400">Player ID / Character ID:</span>
+                    {item.serverId && <span className="text-[10px]">Zone: <strong className="text-gray-200">{item.serverId}</strong></span>}
                   </div>
 
-                  {formErrors[`item_${idx}_playerId`] && (
-                    <p className="text-[10px] text-red-400">
-                      {formErrors[`item_${idx}_playerId`]}
-                    </p>
-                  )}
-                  {formErrors[`item_${idx}_serverId`] && (
-                    <p className="text-[10px] text-red-400">
-                      {formErrors[`item_${idx}_serverId`]}
-                    </p>
-                  )}
+                  <div className="mt-1">
+                    <input
+                      type="text"
+                      id={`checkout-item-player-id-${idx}`}
+                      value={item.playerId || ''}
+                      onChange={(e) => {
+                        updatePlayerId(item.id, e.target.value);
+                        if (formErrors[`item_${idx}_playerId`]) {
+                          setFormErrors((prev) => {
+                            const copy = { ...prev };
+                            delete copy[`item_${idx}_playerId`];
+                            return copy;
+                          });
+                        }
+                      }}
+                      placeholder="Enter Player ID / UID *"
+                      className={`w-full bg-[#0d0d0f] border ${
+                        formErrors[`item_${idx}_playerId`]
+                          ? 'border-red-500 ring-2 ring-red-500/50 bg-red-950/20'
+                          : 'border-white/10'
+                      } rounded-lg px-2.5 py-1.5 text-xs text-white font-mono placeholder-gray-500 focus:outline-none focus:border-cyan-400`}
+                    />
+                    {formErrors[`item_${idx}_playerId`] && (
+                      <p className="text-[10px] text-red-400 mt-1 flex items-center gap-1 font-sans font-medium">
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                        <span>Please enter your Player ID First</span>
+                      </p>
+                    )}
+                    {formErrors[`item_${idx}_serverId`] && (
+                      <p className="text-[10px] text-red-400 mt-1 flex items-center gap-1 font-sans">
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                        <span>{formErrors[`item_${idx}_serverId`]}</span>
+                      </p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

@@ -51,7 +51,7 @@ export const Footer: React.FC = () => {
             </div>
             <div>
               <p className="text-sm font-bold text-gray-100">Best BDT Price</p>
-              <p className="text-xs text-gray-500">Official bKash & Nagad</p>
+              <p className="text-xs text-gray-500">Verified bKash & Nagad</p>
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@ export const Footer: React.FC = () => {
             </p>
 
             <p className="text-sm text-gray-400 max-w-sm leading-relaxed">
-              NEXORA is Bangladesh's dedicated gaming top-up store. We empower gamers across the country with lightning-fast in-game credits, diamonds, UC, and passes at unbeatable rates.
+              NEXORA is Bangladesh's dedicated gaming <span className="text-red-500 font-semibold">top-up</span> store. We empower gamers across the country with lightning-fast in-game credits, diamonds, UC, and passes at unbeatable rates.
             </p>
 
             {/* Payment Badges */}

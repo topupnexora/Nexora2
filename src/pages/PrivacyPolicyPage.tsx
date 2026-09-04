@@ -48,7 +48,7 @@ export const PrivacyPolicyPage: React.FC = () => {
             2. We NEVER Ask for Game Passwords
           </h2>
           <div className="p-4 bg-purple-950/30 border border-purple-800/40 rounded-2xl text-xs text-purple-200">
-            <strong>Critical Security Guarantee:</strong> NEXORA operates strictly through official top-up partner APIs and authorized publisher distribution gateways. We will <strong>NEVER</strong> ask for your game password, Google account credentials, Facebook login, or OTP codes. Anyone requesting your credentials while claiming to represent NEXORA is an impostor.
+            <strong>Critical Security Guarantee:</strong> NEXORA processes game <span className="text-red-500 font-semibold">top-ups</span> directly via numeric Player ID / UID. We will <strong>NEVER</strong> ask for your game password, Google account credentials, Facebook login, or OTP codes. Anyone requesting your credentials while claiming to represent NEXORA is an impostor.
           </div>
         </section>
 

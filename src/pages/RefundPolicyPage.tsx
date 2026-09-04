@@ -28,7 +28,7 @@ export const RefundPolicyPage: React.FC = () => {
 
       <div className="bg-zinc-900/80 border border-zinc-800 rounded-3xl p-6 sm:p-10 space-y-6 text-sm text-zinc-300 leading-relaxed backdrop-blur-md">
         <p>
-          At <strong>NEXORA</strong>, we strive to deliver 100% genuine game top-ups rapidly. Because digital goods (diamonds, UC, robux, and credits) are consumable and cannot be returned once credited to a player account, please review our refund conditions below.
+          At <strong>NEXORA</strong>, we strive to deliver 100% genuine game <span className="text-red-500 font-semibold">top-ups</span> rapidly. Because digital goods (diamonds, UC, robux, and credits) are consumable and cannot be returned once credited to a player account, please review our refund conditions below.
         </p>
 
         {/* When refund is eligible */}
@@ -40,7 +40,7 @@ export const RefundPolicyPage: React.FC = () => {
           <div className="space-y-2 text-zinc-300">
             <div className="p-3.5 bg-emerald-950/20 border border-emerald-500/30 rounded-2xl flex items-start gap-3">
               <span className="text-emerald-400 font-bold shrink-0">✓</span>
-              <span><strong>Publisher Server Error / Outage:</strong> If the official game server is under emergency maintenance and we cannot deliver your credits within 12 hours, you may request an instant full refund.</span>
+              <span><strong>Publisher Server Error / Outage:</strong> If the game server is under emergency maintenance and we cannot deliver your credits within 12 hours, you may request an instant full refund.</span>
             </div>
             <div className="p-3.5 bg-emerald-950/20 border border-emerald-500/30 rounded-2xl flex items-start gap-3">
               <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -62,7 +62,7 @@ export const RefundPolicyPage: React.FC = () => {
           <div className="space-y-2 text-zinc-300">
             <div className="p-3.5 bg-red-950/20 border border-red-500/30 rounded-2xl flex items-start gap-3">
               <span className="text-red-400 font-bold shrink-0">✕</span>
-              <span><strong>Incorrect Player UID Submitted:</strong> If you entered an incorrect UID and the recharge has already completed to that account, the top-up cannot be undone or refunded.</span>
+              <span><strong>Incorrect Player UID Submitted:</strong> If you entered an incorrect UID and the recharge has already completed to that account, the <span className="text-red-500 font-semibold">top-up</span> cannot be undone or refunded.</span>
             </div>
             <div className="p-3.5 bg-red-950/20 border border-red-500/30 rounded-2xl flex items-start gap-3">
               <span className="text-red-400 font-bold shrink-0">✕</span>

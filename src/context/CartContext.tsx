@@ -6,6 +6,7 @@ interface CartContextType {
   addToCart: (item: Omit<CartItem, 'id'>) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, delta: number) => void;
+  updatePlayerId: (id: string, playerId: string, serverId?: string) => void;
   clearCart: () => void;
   totalItems: number;
   subtotal: number;
@@ -75,6 +76,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
 
+  const updatePlayerId = (id: string, playerId: string, serverId?: string) => {
+    setCart((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            playerId,
+            ...(serverId !== undefined ? { serverId } : {})
+          };
+        }
+        return item;
+      })
+    );
+  };
+
   const clearCart = () => {
     setCart([]);
   };
@@ -91,6 +107,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addToCart,
         removeFromCart,
         updateQuantity,
+        updatePlayerId,
         clearCart,
         totalItems,
         subtotal,

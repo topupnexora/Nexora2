@@ -138,11 +138,11 @@ export const SupportPage: React.FC = () => {
               <Mail className="w-6 h-6" />
             </div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-              Official Inquiries
+              Customer Inquiries
             </span>
             <h3 className="text-lg font-bold text-white mt-1">Email & Operation</h3>
             <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
-              For partnership inquiries, order audits, or formal corporate communication.
+              For customer inquiries, order audits, and payment support communication.
             </p>
             <a
               href={`mailto:${SITE_CONFIG.support.email}`}

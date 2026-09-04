@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Trash2, 
@@ -9,14 +9,59 @@ import {
   ShieldCheck, 
   CreditCard,
   Gamepad2,
-  ChevronLeft
+  ChevronLeft,
+  AlertCircle,
+  X
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { formatPrice } from '../utils/format';
+import { HighlightTopUp } from '../components/HighlightTopUp';
 
 export const CartPage: React.FC = () => {
-  const { cart, removeFromCart, updateQuantity, clearCart, subtotal, discount, total } = useCart();
+  const { cart, removeFromCart, updateQuantity, clearCart, subtotal, discount, total, updatePlayerId } = useCart();
   const navigate = useNavigate();
+
+  const [playerErrorToast, setPlayerErrorToast] = useState(false);
+  const [missingItemIds, setMissingItemIds] = useState<string[]>([]);
+  const errorToastTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (errorToastTimerRef.current) {
+        clearTimeout(errorToastTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleProceedToCheckout = () => {
+    const invalidItems = cart.filter((item) => !item.playerId || !item.playerId.trim());
+    if (invalidItems.length > 0) {
+      const ids = invalidItems.map((i) => i.id);
+      setMissingItemIds(ids);
+      setPlayerErrorToast(true);
+
+      if (errorToastTimerRef.current) {
+        clearTimeout(errorToastTimerRef.current);
+      }
+      errorToastTimerRef.current = setTimeout(() => {
+        setPlayerErrorToast(false);
+      }, 5000);
+
+      // Focus first missing input
+      setTimeout(() => {
+        const firstId = ids[0];
+        const el = document.getElementById(`cart-item-player-id-${firstId}`) as HTMLInputElement | null;
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.focus();
+        }
+      }, 60);
+      return;
+    }
+
+    setPlayerErrorToast(false);
+    navigate('/checkout');
+  };
 
   if (cart.length === 0) {
     return (
@@ -51,7 +96,39 @@ export const CartPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8 relative">
+      {/* Floating Red Error Toast / Popup for missing Player ID */}
+      {playerErrorToast && (
+        <div
+          role="alert"
+          id="cart-player-id-error-toast"
+          className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[92%] sm:w-auto min-w-[300px] max-w-md bg-red-950/95 border-2 border-red-500 text-white px-4 sm:px-5 py-3.5 rounded-2xl shadow-[0_10px_40px_rgba(239,68,68,0.45)] backdrop-blur-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-200"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-red-900/80 border border-red-500/60 flex items-center justify-center text-red-300 shrink-0">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+            </div>
+            <span className="text-xs sm:text-sm font-bold text-red-100 tracking-wide">
+              Please enter your Player ID First
+            </span>
+          </div>
+          <button
+            type="button"
+            id="btn-close-cart-error-toast"
+            onClick={() => {
+              if (errorToastTimerRef.current) {
+                clearTimeout(errorToastTimerRef.current);
+              }
+              setPlayerErrorToast(false);
+            }}
+            aria-label="Close error notice"
+            className="p-1 rounded-lg text-red-300 hover:text-white hover:bg-red-900/60 transition-colors shrink-0 ml-1"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-6">
         <div>
@@ -97,16 +174,54 @@ export const CartPage: React.FC = () => {
                     {item.gameName}
                   </h3>
                   <div className="text-sm font-semibold text-cyan-400 mt-0.5">
-                    {item.packageName}
+                    <HighlightTopUp text={item.packageName} redClassName="text-red-500 font-bold" />
                   </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-400">
-                    <span className="bg-[#050505] px-2 py-0.5 rounded border border-white/10 font-mono text-[11px]">
-                      ID: {item.playerId}
-                    </span>
-                    {item.serverId && (
-                      <span className="bg-[#050505] px-2 py-0.5 rounded border border-white/10 font-mono text-[11px]">
-                        Zone: {item.serverId}
-                      </span>
+                  <div className="mt-2 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase font-bold text-gray-400">Player ID / Character ID:</span>
+                      {item.serverId && (
+                        <span className="text-[10px] text-gray-400">Zone: <strong className="text-gray-200">{item.serverId}</strong></span>
+                      )}
+                    </div>
+                    {(!item.playerId || missingItemIds.includes(item.id)) ? (
+                      <div className="space-y-1">
+                        <input
+                          type="text"
+                          id={`cart-item-player-id-${item.id}`}
+                          value={item.playerId || ''}
+                          onChange={(e) => {
+                            updatePlayerId(item.id, e.target.value);
+                            if (e.target.value.trim()) {
+                              setMissingItemIds((prev) => prev.filter((id) => id !== item.id));
+                            }
+                          }}
+                          placeholder="Enter Player ID / UID *"
+                          className={`w-full max-w-xs bg-[#050505] border ${
+                            missingItemIds.includes(item.id) || !item.playerId
+                              ? 'border-red-500 ring-2 ring-red-500/50 bg-red-950/20'
+                              : 'border-white/10'
+                          } rounded-lg px-2.5 py-1 text-xs text-white font-mono placeholder-gray-500 focus:outline-none focus:border-cyan-400`}
+                        />
+                        {missingItemIds.includes(item.id) && (
+                          <p className="text-[10px] text-red-400 flex items-center gap-1 font-medium">
+                            <AlertCircle className="w-3 h-3 shrink-0" />
+                            <span>Please enter your Player ID First</span>
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <span className="bg-[#050505] px-2 py-0.5 rounded border border-white/10 font-mono text-[11px] text-gray-200">
+                          {item.playerId}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setMissingItemIds((prev) => [...prev, item.id])}
+                          className="text-[10px] text-cyan-400 hover:underline"
+                        >
+                          Edit ID
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -203,7 +318,7 @@ export const CartPage: React.FC = () => {
             <button
               type="button"
               id="btn-cart-checkout"
-              onClick={() => navigate('/checkout')}
+              onClick={handleProceedToCheckout}
               className="w-full py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider text-black bg-white hover:bg-cyan-400 shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95"
             >
               <CreditCard className="w-4 h-4" />
@@ -214,7 +329,7 @@ export const CartPage: React.FC = () => {
             <div className="pt-2 border-t border-white/5 space-y-2 text-[11px] text-gray-400">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Instant delivery via official Bangladeshi channel</span>
+                <span>Fast & verified delivery across Bangladesh</span>
               </div>
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-cyan-400 shrink-0" />

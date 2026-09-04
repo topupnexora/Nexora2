@@ -16,6 +16,7 @@ import {
 import { useOrder } from '../context/OrderContext';
 import { SITE_CONFIG } from '../config/site';
 import { formatPrice } from '../utils/format';
+import { HighlightTopUp } from '../components/HighlightTopUp';
 
 export const OrderConfirmationPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -71,7 +72,7 @@ export const OrderConfirmationPage: React.FC = () => {
           </div>
 
           <p className="text-xs sm:text-sm text-gray-400 max-w-md mx-auto mt-2">
-            Thank you, <span className="text-white font-semibold">{order.customerName}</span>. Your top-up request has been queued for manual verification.
+            Thank you, <span className="text-white font-semibold">{order.customerName}</span>. Your <span className="text-red-500 font-semibold">top-up</span> request has been queued for manual verification.
           </p>
         </div>
       </div>
@@ -141,7 +142,9 @@ export const OrderConfirmationPage: React.FC = () => {
             {/* Package */}
             <div className="space-y-1">
               <span className="text-gray-500 uppercase tracking-wider text-[10px] block">Package</span>
-              <span className="font-bold text-cyan-400 text-sm block">{order.package}</span>
+              <span className="font-bold text-cyan-400 text-sm block">
+                <HighlightTopUp text={order.package} redClassName="text-red-500 font-bold" />
+              </span>
             </div>
 
             {/* Player ID */}
@@ -161,11 +164,31 @@ export const OrderConfirmationPage: React.FC = () => {
               <span className="font-bold text-white text-sm block">{order.paymentMethod}</span>
             </div>
 
+            {/* Payment Sender Number */}
+            {order.paymentSenderNumber && (
+              <div className="space-y-1">
+                <span className="text-gray-500 uppercase tracking-wider text-[10px] block">Payment Sender Number</span>
+                <span className="font-mono font-bold text-white text-sm block">
+                  {order.paymentSenderNumber}
+                </span>
+              </div>
+            )}
+
+            {/* Customer Contact Phone */}
+            {order.customerPhone && (
+              <div className="space-y-1">
+                <span className="text-gray-500 uppercase tracking-wider text-[10px] block">Contact Number</span>
+                <span className="font-mono font-bold text-white text-sm block">
+                  {order.customerPhone}
+                </span>
+              </div>
+            )}
+
             {/* Transaction ID */}
             <div className="space-y-1">
-              <span className="text-gray-500 uppercase tracking-wider text-[10px] block">Transaction ID / Reference</span>
+              <span className="text-gray-500 uppercase tracking-wider text-[10px] block">Transaction ID (TrxID)</span>
               <span className="font-mono font-bold text-cyan-400 text-sm block break-all">
-                {order.transactionId}
+                {order.transactionId || <span className="text-gray-500 font-normal italic">Not provided (Optional)</span>}
               </span>
             </div>
 

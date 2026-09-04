@@ -92,7 +92,7 @@ export const Navbar: React.FC = () => {
                 {SITE_CONFIG.name}
               </span>
               <span className="text-[9px] font-bold tracking-[0.2em] text-cyan-400 uppercase -mt-1 hidden sm:block">
-                Top-Up Bangladesh
+                <span className="text-red-500 font-extrabold">Top-Up</span> Bangladesh
               </span>
             </div>
           </Link>
@@ -219,7 +219,9 @@ export const Navbar: React.FC = () => {
                               <p className="text-sm font-semibold text-gray-100 group-hover:text-cyan-400 truncate">
                                 {game.name}
                               </p>
-                              <p className="text-xs text-gray-400">{game.category} • Instant Top-Up</p>
+                              <p className="text-xs text-gray-400">
+                                {game.category} • Instant <span className="text-red-500 font-semibold">Top-Up</span>
+                              </p>
                             </div>
                             <ArrowRight className="w-4 h-4 text-gray-500 group-hover:text-cyan-400" />
                           </Link>

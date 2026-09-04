@@ -35,7 +35,7 @@ export const ProfilePage: React.FC = () => {
       <div className="max-w-md mx-auto px-4 py-20 text-center space-y-4">
         <h2 className="text-2xl font-bold text-white">Please Sign In</h2>
         <p className="text-xs text-zinc-400">
-          Sign in to view your user profile, saved gamer IDs, and past top-ups.
+          Sign in to view your user profile, saved gamer IDs, and past <span className="text-red-500 font-semibold">top-ups</span>.
         </p>
         <Link
           to="/login"
@@ -190,7 +190,7 @@ export const ProfilePage: React.FC = () => {
           </div>
           <div>
             <div className="text-2xl font-black text-white font-display">{completedOrders.length}</div>
-            <div className="text-xs text-zinc-400">Completed Top-Ups</div>
+            <div className="text-xs text-zinc-400">Completed <span className="text-red-500 font-semibold">Top-Ups</span></div>
           </div>
         </div>
 
@@ -268,7 +268,7 @@ export const ProfilePage: React.FC = () => {
           </div>
         ) : (
           <div className="text-center py-8 text-xs text-zinc-500">
-            No orders placed yet. Select a game to top up your first package!
+            No orders placed yet. Select a game to <span className="text-red-500 font-semibold">top up</span> your first package!
           </div>
         )}
       </div>

@@ -12,12 +12,14 @@ import {
   ChevronLeft,
   Plus,
   Minus,
-  Sparkles
+  Sparkles,
+  X
 } from 'lucide-react';
 import { GAMES_DATA } from '../data/games';
 import { useCart } from '../context/CartContext';
 import { Package } from '../types';
 import { formatPrice } from '../utils/format';
+import { HighlightTopUp } from '../components/HighlightTopUp';
 
 export const GameDetailPage: React.FC = () => {
   const { gameId } = useParams<{ gameId: string }>();
@@ -35,6 +37,8 @@ export const GameDetailPage: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [errors, setErrors] = useState<{ playerId?: string; serverId?: string; package?: string }>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [playerErrorToast, setPlayerErrorToast] = useState(false);
+  const errorToastTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (game) {
@@ -43,7 +47,16 @@ export const GameDetailPage: React.FC = () => {
       setServerId('');
       setQuantity(1);
       setErrors({});
+      setPlayerErrorToast(false);
+      if (errorToastTimerRef.current) {
+        clearTimeout(errorToastTimerRef.current);
+      }
     }
+    return () => {
+      if (errorToastTimerRef.current) {
+        clearTimeout(errorToastTimerRef.current);
+      }
+    };
   }, [gameId]);
 
   if (!game) {
@@ -71,7 +84,28 @@ export const GameDetailPage: React.FC = () => {
     }
 
     if (!playerId.trim()) {
-      newErrors.playerId = `Please enter your ${game.fields[0]?.label || 'Player ID'}`;
+      newErrors.playerId = 'Please enter your Player ID First';
+
+      // Clear any active cart success toast
+      setToastMessage(null);
+
+      // Trigger visible red error popup / toast immediately
+      if (errorToastTimerRef.current) {
+        clearTimeout(errorToastTimerRef.current);
+      }
+      setPlayerErrorToast(true);
+      errorToastTimerRef.current = setTimeout(() => {
+        setPlayerErrorToast(false);
+      }, 4500);
+
+      // Focus and highlight empty Player ID input field
+      setTimeout(() => {
+        const inputEl = document.getElementById('input-player-id') as HTMLInputElement | null;
+        if (inputEl) {
+          inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          inputEl.focus();
+        }
+      }, 50);
     } else if (game.id === 'free-fire' && (!/^\d{7,12}$/.test(playerId.trim()))) {
       newErrors.playerId = 'Free Fire UID is typically 7 to 12 digits numeric.';
     } else if (game.id === 'pubg-mobile' && (!/^\d{7,12}$/.test(playerId.trim()))) {
@@ -90,6 +124,11 @@ export const GameDetailPage: React.FC = () => {
 
   const handleAddToCart = () => {
     if (!validate() || !selectedPackage) return;
+
+    if (errorToastTimerRef.current) {
+      clearTimeout(errorToastTimerRef.current);
+    }
+    setPlayerErrorToast(false);
 
     addToCart({
       gameId: game.id,
@@ -110,6 +149,11 @@ export const GameDetailPage: React.FC = () => {
 
   const handleBuyNow = () => {
     if (!validate() || !selectedPackage) return;
+
+    if (errorToastTimerRef.current) {
+      clearTimeout(errorToastTimerRef.current);
+    }
+    setPlayerErrorToast(false);
 
     addToCart({
       gameId: game.id,
@@ -144,6 +188,38 @@ export const GameDetailPage: React.FC = () => {
           <span>Back to All Games</span>
         </Link>
       </div>
+
+      {/* Floating Red Error Toast / Popup for missing Player ID */}
+      {playerErrorToast && (
+        <div
+          role="alert"
+          id="player-id-error-toast"
+          className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[92%] sm:w-auto min-w-[300px] max-w-md bg-red-950/95 border-2 border-red-500 text-white px-4 sm:px-5 py-3.5 rounded-2xl shadow-[0_10px_40px_rgba(239,68,68,0.45)] backdrop-blur-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-200"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-red-900/80 border border-red-500/60 flex items-center justify-center text-red-300 shrink-0">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+            </div>
+            <span className="text-xs sm:text-sm font-bold text-red-100 tracking-wide">
+              Please enter your Player ID First
+            </span>
+          </div>
+          <button
+            type="button"
+            id="btn-close-error-toast"
+            onClick={() => {
+              if (errorToastTimerRef.current) {
+                clearTimeout(errorToastTimerRef.current);
+              }
+              setPlayerErrorToast(false);
+            }}
+            aria-label="Close error notice"
+            className="p-1 rounded-lg text-red-300 hover:text-white hover:bg-red-900/60 transition-colors shrink-0 ml-1"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Floating Toast notification */}
       {toastMessage && (
@@ -185,12 +261,12 @@ export const GameDetailPage: React.FC = () => {
                 {game.name}
               </h1>
               <p className="text-xs sm:text-sm text-gray-400 max-w-2xl mt-1.5 line-clamp-2">
-                {game.description}
+                <HighlightTopUp text={game.description} redClassName="text-red-500 font-semibold" />
               </p>
             </div>
-            <div className="shrink-0 flex items-center gap-2 text-xs text-emerald-400 font-semibold uppercase tracking-wider bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl border border-emerald-500/30">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Official Top-Up Partner</span>
+            <div className="shrink-0 flex items-center gap-2 text-xs text-cyan-300 font-semibold uppercase tracking-wider bg-black/60 backdrop-blur-md px-3.5 py-2 rounded-xl border border-cyan-500/30">
+              <Zap className="w-4 h-4 text-cyan-400 fill-cyan-400" />
+              <span>Instant <span className="text-red-500 font-bold">Top-Up</span></span>
             </div>
           </div>
         </div>
@@ -227,18 +303,29 @@ export const GameDetailPage: React.FC = () => {
                   id="input-player-id"
                   value={playerId}
                   onChange={(e) => {
-                    setPlayerId(e.target.value);
-                    if (errors.playerId) setErrors({ ...errors, playerId: undefined });
+                    const val = e.target.value;
+                    setPlayerId(val);
+                    if (val.trim()) {
+                      setPlayerErrorToast(false);
+                      if (errorToastTimerRef.current) {
+                        clearTimeout(errorToastTimerRef.current);
+                      }
+                      if (errors.playerId) {
+                        setErrors((prev) => ({ ...prev, playerId: undefined }));
+                      }
+                    }
                   }}
                   placeholder={game.fields[0]?.placeholder || 'Enter Player ID'}
                   className={`w-full bg-[#050505] border ${
-                    errors.playerId ? 'border-red-500 ring-1 ring-red-500' : 'border-white/10'
-                  } rounded-xl px-4 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-mono`}
+                    errors.playerId
+                      ? 'border-red-500 ring-2 ring-red-500/50 bg-red-950/20 text-white focus:border-red-500 focus:ring-2 focus:ring-red-500/60'
+                      : 'border-white/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400'
+                  } rounded-xl px-4 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none font-mono transition-all`}
                 />
                 {errors.playerId && (
-                  <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    {errors.playerId}
+                  <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1.5 font-medium animate-in fade-in">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{errors.playerId}</span>
                   </p>
                 )}
                 {game.fields[0]?.helperText && (
@@ -300,7 +387,7 @@ export const GameDetailPage: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-bold uppercase tracking-tight text-gray-100">
-                    Select Top-Up Package
+                    Select <span className="text-red-500 font-bold">Top-Up</span> Package
                   </h3>
                   <p className="text-xs text-gray-400">
                     Choose your in-game denomination. All packages priced in BDT.
@@ -312,7 +399,7 @@ export const GameDetailPage: React.FC = () => {
             {errors.package && (
               <p className="text-xs text-red-400 mb-4 flex items-center gap-1">
                 <AlertCircle className="w-3.5 h-3.5" />
-                {errors.package}
+                <HighlightTopUp text={errors.package} redClassName="text-red-500 font-bold" />
               </p>
             )}
 

@@ -24,15 +24,21 @@ export default async function handler(req: any, res: any) {
   const {
     orderId,
     customerName,
+    customerPhone,
     phone,
+    customerEmail,
     email,
     game,
     package: packageName,
     playerId,
+    serverZoneId,
     serverId,
     quantity,
     amount,
     paymentMethod,
+    nexoraReceivingNumber,
+    paymentSenderNumber,
+    senderPhone,
     transactionId,
     status,
     dateTime
@@ -51,22 +57,53 @@ export default async function handler(req: any, res: any) {
     });
   }
 
-  // Format exact Telegram message requested using safe HTML mode
-  const telegramMessage = `🛒 <b>NEW NEXORA ORDER</b>
+  const nexoraReceiving = nexoraReceivingNumber || '01638749806';
+  const senderNumber = paymentSenderNumber || senderPhone || 'Not provided';
+  const contactNumber = customerPhone || phone || 'N/A';
+  const customerEmailStr = customerEmail || email || 'Not provided';
+  const serverZoneStr = serverZoneId || serverId || 'N/A';
+  const trxIdStr = transactionId && String(transactionId).trim() ? String(transactionId).trim() : 'Not provided';
+  const currentDateTime = dateTime || new Date().toLocaleString('en-US', { timeZone: 'Asia/Dhaka', dateStyle: 'medium', timeStyle: 'short' });
+  const orderStatusStr = status || 'Pending';
 
-<b>Order ID:</b> <code>${escapeHtml(orderId)}</code>
-<b>Game:</b> ${escapeHtml(game)}
-<b>Package:</b> ${escapeHtml(packageName)}
-<b>Quantity:</b> ${quantity || 1}
-<b>Total Price:</b> ৳${escapeHtml(amount)}
-<b>Player ID / UID:</b> <code>${escapeHtml(playerId)}</code>
-<b>Server / Zone ID:</b> ${escapeHtml(serverId || 'N/A')}
-<b>Payment Method:</b> ${escapeHtml(paymentMethod)}
-<b>Transaction ID / Reference:</b> <code>${escapeHtml(transactionId)}</code>
-<b>Customer Name:</b> ${escapeHtml(customerName || 'N/A')}
-<b>Customer Phone:</b> <code>${escapeHtml(phone || 'N/A')}</code>
-<b>Order Date &amp; Time:</b> ${escapeHtml(dateTime || new Date().toLocaleString())}
-<b>Status:</b> 🟡 ${escapeHtml(status || 'Pending')} (Awaiting Verification)`;
+  // Format exact Telegram message requested
+  const telegramMessage = `🎮 <b>NEXORA NEW ORDER</b>
+
+🆔 <b>Order ID:</b> <code>${escapeHtml(orderId)}</code>
+
+🎯 <b>Game:</b> ${escapeHtml(game)}
+
+📦 <b>Package:</b> ${escapeHtml(packageName)}
+
+🔢 <b>Quantity:</b> ${escapeHtml(quantity || 1)}
+
+👤 <b>Player ID:</b> <code>${escapeHtml(playerId)}</code>
+
+🌐 <b>Server/Zone ID:</b> ${escapeHtml(serverZoneStr)}
+
+💳 <b>Payment Method:</b> ${escapeHtml(paymentMethod)}
+
+📱 <b>NEXORA Receiving Number:</b> <code>${escapeHtml(nexoraReceiving)}</code>
+
+📲 <b>Customer Payment Sender Number:</b> <code>${escapeHtml(senderNumber)}</code>
+
+💵 <b>Amount:</b> ৳${escapeHtml(amount)}
+
+🧾 <b>Transaction ID:</b> <code>${escapeHtml(trxIdStr)}</code>
+
+👤 <b>Customer Name:</b> ${escapeHtml(customerName || 'N/A')}
+
+📞 <b>Customer Contact Number:</b> <code>${escapeHtml(contactNumber)}</code>
+
+📧 <b>Customer Email:</b> ${escapeHtml(customerEmailStr)}
+
+🕐 <b>Date/Time:</b> ${escapeHtml(currentDateTime)}
+
+📌 <b>Status:</b> ${escapeHtml(orderStatusStr)}
+
+⚠️ Payment must be verified before processing.
+
+💬 Support: https://t.me/callmeriyadh`;
 
   try {
     const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;

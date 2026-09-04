@@ -54,21 +54,25 @@ export type PaymentMethod = 'bKash' | 'Nagad' | 'Binance Pay' | 'Bank Transfer';
 
 export interface Order {
   orderId: string;
-  customerName: string;
-  phone: string;
-  email?: string;
-  // Specific required top-level fields for single or multi-item purchases
   game: string;
   package: string;
-  playerId: string;
-  serverId?: string;
   quantity: number;
+  playerId: string;
+  serverZoneId?: string;
+  serverId?: string;
+  customerName: string;
+  customerPhone: string;
+  phone: string;
+  email?: string;
+  paymentMethod: PaymentMethod;
+  paymentSenderNumber: string;
+  senderPhone: string;
+  paymentNumberSentTo: string;
+  transactionId: string;
+  amount: number;
   totalPrice: number;
   totalAmount: number;
-  paymentMethod: PaymentMethod;
-  paymentNumberSentTo: string;
-  senderPhone: string;
-  transactionId: string;
+  dateTime: string;
   orderDateTime: string;
   status: OrderStatus;
   createdAt: string;
